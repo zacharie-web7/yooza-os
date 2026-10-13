@@ -14,3 +14,7 @@
 .avis-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.avis-stats strong{font-size:32px;display:block;color:#146c7c}
 @media(max-width:1000px){.avis-grille{grid-template-columns:1fr}.avis-original{position:static}.avis-stats{grid-template-columns:1fr 1fr}}
 @media(max-width:550px){.avis-champs{grid-template-columns:1fr}.avis-carte{padding:16px}.avis-table th:nth-child(3),.avis-table td:nth-child(3){display:none}}
+
+.avis-qr{margin:18px 0;padding:18px;border:1px solid #e0e7ed;border-radius:10px;max-width:100%;background:white}
+.avis-qr canvas{display:block;width:220px;max-width:100%;height:auto;margin-bottom:12px;image-rendering:pixelated}
+.avis-qr figcaption{font-weight:600;margin-bottom:10px}.avis-qr a{display:block;overflow-wrap:anywhere}

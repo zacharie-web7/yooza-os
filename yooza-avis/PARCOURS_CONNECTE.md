@@ -17,3 +17,11 @@ Les données structurées sont rendues avec textContent. Le service worker cache
 Le backend compagnon est zacharie-web7/yooza-os-backend, branche codex/avis-parcours-complet-20261013, migration 0008 et routes /api/v1/avis. Les deux dépôts composent la même livraison; aucune donnée client réelle n’est publiée dans ce dépôt public.
 
 Connexion Google réelle et accès HTTPS au téléphone non vérifiés. Le pilote local permet déjà l’import et la préparation sur le HP; la configuration du véritable lien Google reste nécessaire pour préparer une demande destinée à un client.
+
+## QR code des avis, 13/10/2026
+
+Réglages affiche le QR du lien enregistré et permet son téléchargement PNG. L’aperçu d’une demande affiche le QR du lien contenu dans son message conservé, même si les réglages changent ensuite. Le brouillon EML reste textuel avec un lien cliquable; aucune image jointe ni aucun envoi automatique ajouté. Les PDF originaux ne sont pas modifiés.
+
+Génération locale avec qrcode-generator 2.0.4, fichier dist/qrcode.js du paquet npm copié sans modification sous js/vendor et licence MIT conservée. SHA-256 : 79ec86f82856005b1c887905cfccfcfbec3821ca61c7fd5a952faa5f778f791c. Aucun service de QR tiers, abonnement ni redirection supplémentaire. Fond blanc, modules noirs, marge de quatre modules, correction Q, téléchargement en pixels entiers. Le service worker v2.1 cache les nouveaux scripts publics.
+
+Recette HP : 32 tests frontend et syntaxe réussis; Chrome télécharge le PNG des réglages, un décodeur indépendant jsQR 1.4.0 vérifie l’URL à taille entière et moitié. QR de l’ancien brouillon fictif inchangé, mobile 390 px sans débordement. Le lien Google fourni est enregistré dans le pilote, sans nouvelle validation d’intervention ni demande client. L’accès HTTP au lien atteint le consentement Google Maps : la fiche et la saisie d’avis ne sont pas vérifiées dans une session Google connectée.

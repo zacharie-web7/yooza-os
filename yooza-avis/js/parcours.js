@@ -136,6 +136,7 @@ async function avisFiche(parent,id,generation){
 }
 function avisApercu(parent,m){
  var c=avisElement('div');c.append(avisElement('p','À : '+m.to),avisElement('p','Objet : '+m.subject),avisElement('pre',m.body,'avis-pre'));parent.append(c);
+ avisAfficherQr(c,avisLienMessageQr(m.body));
  avisBouton(c,'Télécharger le brouillon e-mail',function(){
   var subject=btoa(String.fromCharCode.apply(null,new TextEncoder().encode(m.subject))),eml='X-Unsent: 1\r\nTo: '+m.to+'\r\nSubject: =?UTF-8?B?'+subject+'?=\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n'+m.body.replace(/\r?\n/g,'\r\n');
   var url=URL.createObjectURL(new Blob([eml],{type:'message/rfc822'})),a=avisElement('a');a.href=url;a.download='Yooza-demande-avis-brouillon.eml';a.click();setTimeout(function(){URL.revokeObjectURL(url);},1000);
@@ -144,6 +145,7 @@ function avisApercu(parent,m){
 async function avisReglages(parent){
  var c=avisCarte(parent,'Réglages des demandes'),s=await avisApi('/avis/settings'),f=avisElement('form',undefined,'avis-form'),u=avisChamp(f,'Lien Google pour laisser un avis',s.reviewUrl||'','url');u.required=true;
  c.append(avisElement('p','Colle le lien de demande d’avis de la fiche Google Yooza. Le message sollicite librement le retour du client.','avis-texte'),f);
- var b=avisElement('button','Enregistrer le lien','btn btn-primary');b.type='submit';f.append(b);f.addEventListener('submit',async function(e){e.preventDefault();b.disabled=true;try{await avisApi('/avis/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({reviewUrl:u.value})});showToast('Lien enregistré.');}catch(error){avisErreur(c,error);}finally{b.disabled=false;}});
+ var zoneQr=avisElement('div');c.append(zoneQr);avisAfficherQr(zoneQr,s.reviewUrl);
+ var b=avisElement('button','Enregistrer le lien','btn btn-primary');b.type='submit';f.append(b);f.addEventListener('submit',async function(e){e.preventDefault();b.disabled=true;try{await avisApi('/avis/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({reviewUrl:u.value})});zoneQr.replaceChildren();avisAfficherQr(zoneQr,u.value);showToast('Lien enregistré.');}catch(error){avisErreur(c,error);}finally{b.disabled=false;}});
  if(Avis.mode==='google')avisBouton(c,'Se déconnecter',function(){Avis.jeton=null;Avis.routeGeneration++;document.getElementById('page-content').replaceChildren();handleRoute();});
 }
