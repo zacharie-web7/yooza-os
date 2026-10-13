@@ -91,9 +91,9 @@ function getActiveRoute(hash) {
 function handleRoute() {
   if (typeof Avis !== 'undefined' && Avis.mode && Avis.mode !== 'demo') {
     var h=window.location.hash||'#/dashboard',title=document.getElementById('page-title');
-    if(title)title.textContent=h.startsWith('#/bon/')?'Vérifier le bon':h==='#/settings'?'Réglages':'Yooza Avis';
-    document.querySelectorAll('.nav-item').forEach(function(item){item.classList.toggle('active',item.dataset.route===(h==='#/settings'?'/settings':h==='#/dashboard'?'/dashboard':'/clients'));});
-    void avisRoute();closeSidebar();window.scrollTo(0,0);return;
+    if(title)title.textContent=h.startsWith('#/bon/')?'Fiche intervention':h==='#/settings'?'Réglages':h==='#/clients'?'Bons et interventions':h==='#/demandes'?'Demandes d’avis':'Tableau de bord';
+    document.querySelectorAll('.nav-item').forEach(function(item){item.classList.toggle('active',item.dataset.route===(h==='#/settings'?'/settings':h==='#/dashboard'?'/dashboard':h==='#/demandes'?'/demandes':'/clients'));});
+    document.querySelectorAll('.nav-item').forEach(function(item){if(item.classList.contains('active'))item.setAttribute('aria-current','page');else item.removeAttribute('aria-current');});void avisRoute();closeSidebar();window.scrollTo(0,0);return;
   }
   var hash = window.location.hash || '#/dashboard';
   AppState.currentRoute = hash;

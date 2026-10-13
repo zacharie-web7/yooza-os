@@ -15,8 +15,8 @@ var avisErreurs={version_obsolete:'La fiche a changé. Recharge-la avant de cont
  lien_avis_a_configurer:'Renseigne le lien Google dans Réglages avant de préparer la demande.',
  forbidden:'Ce compte n’est pas autorisé.',unauthenticated:'Reconnecte-toi avec Google.',
  champ_requis:'Complète les champs requis.',lien_avis_invalide:'Utilise le lien HTTPS de la fiche Google Yooza.',
- variante_deja_connue:'Ce fichier est une ancienne variante connue. La version courante reste affichée.'};
-function avisErreur(parent,error){parent.append(avisElement('p',avisErreurs[error.message]||'Action impossible : '+error.message,'avis-erreur'));}
+ variante_deja_connue:'Ce fichier est une ancienne variante connue. La version courante reste affichée.',service_indisponible:'Le serveur ne répond pas. Réessaie dans un instant.',serveur_indisponible:'La connexion au serveur est interrompue. Réessaie dans un instant.',pdf_indisponible:'Le PDF ne peut pas être ouvert. Recharge la fiche.',pagination_invalide:'La liste n’a pas pu être chargée. Réessaie.',connexion_google_indisponible:'La connexion Google ne répond pas. Réessaie dans un instant.'};
+function avisErreur(parent,error){parent.append(avisElement('p',avisErreurs[error.message]||'L’action n’a pas abouti. Réessaie; si le problème persiste, contacte l’administrateur.','avis-erreur'));}
 async function avisApi(path,options){
  var o=options||{},headers=Object.assign({'X-Yooza-Import':'manuel'},o.headers||{});
  if(Avis.jeton)headers.Authorization='Bearer '+Avis.jeton;
@@ -27,8 +27,8 @@ function avisSources(parent,sources){if(!sources?.length)return;var d=avisElemen
 async function initParcoursAvis(){
  try{var r=await fetch('/avis-config',{cache:'no-store'});if(r.status===404){Avis.mode='demo';return false;}if(!r.ok)throw new Error('Configuration indisponible');Avis.config=await r.json();Avis.mode=Avis.config.mode;if(!['local','google'].includes(Avis.mode))throw new Error('Mode inconnu');}
  catch(e){Avis.mode='indisponible';Avis.config={apiBase:'/api/v1'};}
- var badge=document.querySelector('.version-label'),num=document.querySelector('.version');if(badge)badge.textContent=Avis.mode==='local'?'Pilote connecté':'Connexion Google';if(num)num.textContent='V2';
- document.querySelectorAll('.nav-item').forEach(function(a){if(a.dataset.route==='/clients')a.textContent='Bons et interventions';});
+ document.body.classList.add('avis-connected');var badge=document.querySelector('.version-label'),num=document.querySelector('.version');if(badge)badge.textContent=Avis.mode==='local'?'Pilote connecté':'Connexion Google';if(num)num.textContent='Yooza Avis';
+ document.querySelectorAll('.nav-item').forEach(function(a){if(a.dataset.route==='/clients'){var label=a.querySelector('.nav-label');if(label)label.textContent='Bons et interventions';}});
  updateTopbarDate();initPwa();handleRoute();return true;
 }
 async function avisConnexion(parent){
@@ -83,7 +83,7 @@ function avisCase(parent,label,checked){
 }
 async function avisFiche(parent,id,generation){
  var bon=await avisApi('/avis/imports/'+encodeURIComponent(id));if(generation!==Avis.routeGeneration)return;
- var l=bon.extraction.lecture,d=l.details,v=bon.validation,grid=avisElement('div',undefined,'avis-grille'),left=avisElement('div'),right=avisElement('aside',undefined,'avis-original');grid.append(left,right);parent.append(grid);
+ Avis.ficheCourante=bon;var l=bon.extraction.lecture,d=l.details,v=bon.validation,grid=avisElement('div',undefined,'avis-grille'),left=avisElement('div'),right=avisElement('aside',undefined,'avis-original');grid.append(left,right);parent.append(grid);
  var resume=avisCarte(left,'Bon '+(l.numeroBon||'sans numéro confirmé'));
  resume.append(avisElement('p',(l.dateBon||'Date non précisée')+' · '+(l.responsable||'Responsable non précisé')+' · Révision '+bon.revision,'avis-texte'));
  if(d.couverture?.alertes?.length)resume.append(avisElement('p','Points à vérifier : '+d.couverture.alertes.map(function(a){return avisAlertes[a]||a.replaceAll('_',' ');}).join(', '),'avis-texte'));
