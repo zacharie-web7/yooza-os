@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Yooza Avis — Suivi et automatisation des demandes d'avis Google clients">
+  <meta name="description" content="Yooza Avis : suivi et préparation des demandes d'avis Google clients">
   <meta name="theme-color" content="#1E1E1C">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="css/parcours.css">
 </head>
 <body>
+<a href="#page-content" class="avis-skip">Aller au contenu</a>
 
 <!-- =====================================================================
      Structure principale de l'application
@@ -47,7 +48,7 @@
 
     <!-- Navigation -->
     <nav class="sidebar-nav">
-      <div class="nav-section-label">Principal</div>
+
 
       <button class="nav-item" data-route="/dashboard" onclick="navigate('#/dashboard')">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -56,7 +57,7 @@
           <rect x="3" y="14" width="7" height="7" rx="1"/>
           <rect x="14" y="14" width="7" height="7" rx="1"/>
         </svg>
-        Tableau de bord
+        <span class="nav-label">Tableau de bord</span>
       </button>
 
       <button class="nav-item" data-route="/clients" onclick="navigate('#/clients')">
@@ -66,24 +67,28 @@
           <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
           <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
         </svg>
-        Clients
+        <span class="nav-label">Bons et interventions</span>
       </button>
 
-      <div class="nav-section-label">Configuration</div>
+      <button class="nav-item avis-connected-nav" data-route="/demandes" onclick="navigate('#/demandes')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg>
+        <span class="nav-label">Demandes d’avis</span>
+      </button>
+      <div class="nav-section-label">Votre espace</div>
 
       <button class="nav-item" data-route="/settings" onclick="navigate('#/settings')">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
         </svg>
-        Réglages
+        <span class="nav-label">Réglages</span>
       </button>
     </nav>
 
     <!-- Footer sidebar -->
     <div class="sidebar-footer">
       <div class="sidebar-footer-badge">
-        <div class="version">V1.0</div>
+        <div class="version">Yooza Avis</div>
         <div class="version-label">Démo locale</div>
       </div>
     </div>
@@ -108,6 +113,7 @@
             <line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
+        <img class="avis-mobile-logo" src="assets/yooza-logo-anthracite.png" alt="Yooza Avis">
         <h1 class="page-title" id="page-title">Tableau de bord</h1>
       </div>
       <div class="topbar-right">
@@ -115,7 +121,7 @@
         <button class="install-app-button is-hidden" id="install-app-button" type="button" onclick="installYoozaApp()" aria-label="Installer Yooza Avis">
           <span aria-hidden="true">↓</span> Installer l’app
         </button>
-        <div class="topbar-avatar" title="Yooza SC">Y</div>
+        <div class="topbar-avatar" title="Yooza">Y</div>
       </div>
     </header>
 
@@ -155,6 +161,7 @@
   <script src="js/vendor/qrcode.js"></script>
   <script src="js/avis-qr.js"></script>
   <script src="js/parcours.js"></script>
+  <script src="js/interface.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/clients.js"></script>
 <script src="js/client-detail.js"></script>

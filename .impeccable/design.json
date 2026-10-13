@@ -1,0 +1,537 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-13T06:45:21.078212Z",
+  "title": "Design System: Yooza Avis",
+  "extensions": {
+    "colorMeta": {
+      "yooza-yellow": {
+        "role": "primary",
+        "displayName": "Jaune Yooza",
+        "tonalRamp": [
+          "oklch(15.0% 0.1541 99.6)",
+          "oklch(26.4% 0.1541 99.6)",
+          "oklch(37.9% 0.1541 99.6)",
+          "oklch(49.3% 0.1541 99.6)",
+          "oklch(60.7% 0.1541 99.6)",
+          "oklch(72.1% 0.1541 99.6)",
+          "oklch(83.6% 0.1541 99.6)",
+          "oklch(95.0% 0.1541 99.6)"
+        ]
+      },
+      "yooza-black": {
+        "role": "neutral",
+        "displayName": "Anthracite Yooza",
+        "tonalRamp": [
+          "oklch(15.0% 0.0038 106.7)",
+          "oklch(26.4% 0.0038 106.7)",
+          "oklch(37.9% 0.0038 106.7)",
+          "oklch(49.3% 0.0038 106.7)",
+          "oklch(60.7% 0.0038 106.7)",
+          "oklch(72.1% 0.0038 106.7)",
+          "oklch(83.6% 0.0038 106.7)",
+          "oklch(95.0% 0.0038 106.7)"
+        ]
+      },
+      "yooza-anthracite": {
+        "role": "neutral",
+        "displayName": "Anthracite de panneau",
+        "tonalRamp": [
+          "oklch(15.0% 0.0097 132.6)",
+          "oklch(26.4% 0.0097 132.6)",
+          "oklch(37.9% 0.0097 132.6)",
+          "oklch(49.3% 0.0097 132.6)",
+          "oklch(60.7% 0.0097 132.6)",
+          "oklch(72.1% 0.0097 132.6)",
+          "oklch(83.6% 0.0097 132.6)",
+          "oklch(95.0% 0.0097 132.6)"
+        ]
+      },
+      "yooza-cream": {
+        "role": "neutral",
+        "displayName": "Crème Yooza",
+        "tonalRamp": [
+          "oklch(15.0% 0.0053 106.5)",
+          "oklch(26.4% 0.0053 106.5)",
+          "oklch(37.9% 0.0053 106.5)",
+          "oklch(49.3% 0.0053 106.5)",
+          "oklch(60.7% 0.0053 106.5)",
+          "oklch(72.1% 0.0053 106.5)",
+          "oklch(83.6% 0.0053 106.5)",
+          "oklch(95.0% 0.0053 106.5)"
+        ]
+      },
+      "avis-ink": {
+        "role": "neutral",
+        "displayName": "Encre opérationnelle",
+        "tonalRamp": [
+          "oklch(15.0% 0.0038 106.7)",
+          "oklch(26.4% 0.0038 106.7)",
+          "oklch(37.9% 0.0038 106.7)",
+          "oklch(49.3% 0.0038 106.7)",
+          "oklch(60.7% 0.0038 106.7)",
+          "oklch(72.1% 0.0038 106.7)",
+          "oklch(83.6% 0.0038 106.7)",
+          "oklch(95.0% 0.0038 106.7)"
+        ]
+      },
+      "avis-muted": {
+        "role": "neutral",
+        "displayName": "Gris de lecture",
+        "tonalRamp": [
+          "oklch(15.0% 0.0109 106.8)",
+          "oklch(26.4% 0.0109 106.8)",
+          "oklch(37.9% 0.0109 106.8)",
+          "oklch(49.3% 0.0109 106.8)",
+          "oklch(60.7% 0.0109 106.8)",
+          "oklch(72.1% 0.0109 106.8)",
+          "oklch(83.6% 0.0109 106.8)",
+          "oklch(95.0% 0.0109 106.8)"
+        ]
+      },
+      "avis-line": {
+        "role": "neutral",
+        "displayName": "Contour chaud",
+        "tonalRamp": [
+          "oklch(15.0% 0.0108 100.8)",
+          "oklch(26.4% 0.0108 100.8)",
+          "oklch(37.9% 0.0108 100.8)",
+          "oklch(49.3% 0.0108 100.8)",
+          "oklch(60.7% 0.0108 100.8)",
+          "oklch(72.1% 0.0108 100.8)",
+          "oklch(83.6% 0.0108 100.8)",
+          "oklch(95.0% 0.0108 100.8)"
+        ]
+      },
+      "avis-surface": {
+        "role": "neutral",
+        "displayName": "Blanc de travail",
+        "tonalRamp": [
+          "oklch(15.0% 0.0000 0.0)",
+          "oklch(26.4% 0.0000 0.0)",
+          "oklch(37.9% 0.0000 0.0)",
+          "oklch(49.3% 0.0000 0.0)",
+          "oklch(60.7% 0.0000 0.0)",
+          "oklch(72.1% 0.0000 0.0)",
+          "oklch(83.6% 0.0000 0.0)",
+          "oklch(95.0% 0.0000 0.0)"
+        ]
+      },
+      "avis-paper": {
+        "role": "neutral",
+        "displayName": "Papier opérationnel",
+        "tonalRamp": [
+          "oklch(15.0% 0.0053 106.5)",
+          "oklch(26.4% 0.0053 106.5)",
+          "oklch(37.9% 0.0053 106.5)",
+          "oklch(49.3% 0.0053 106.5)",
+          "oklch(60.7% 0.0053 106.5)",
+          "oklch(72.1% 0.0053 106.5)",
+          "oklch(83.6% 0.0053 106.5)",
+          "oklch(95.0% 0.0053 106.5)"
+        ]
+      },
+      "sidebar": {
+        "role": "neutral",
+        "displayName": "Anthracite de navigation",
+        "tonalRamp": [
+          "oklch(15.0% 0.0038 106.7)",
+          "oklch(26.4% 0.0038 106.7)",
+          "oklch(37.9% 0.0038 106.7)",
+          "oklch(49.3% 0.0038 106.7)",
+          "oklch(60.7% 0.0038 106.7)",
+          "oklch(72.1% 0.0038 106.7)",
+          "oklch(83.6% 0.0038 106.7)",
+          "oklch(95.0% 0.0038 106.7)"
+        ]
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "Olive de focus",
+        "tonalRamp": [
+          "oklch(15.0% 0.1014 94.7)",
+          "oklch(26.4% 0.1014 94.7)",
+          "oklch(37.9% 0.1014 94.7)",
+          "oklch(49.3% 0.1014 94.7)",
+          "oklch(60.7% 0.1014 94.7)",
+          "oklch(72.1% 0.1014 94.7)",
+          "oklch(83.6% 0.1014 94.7)",
+          "oklch(95.0% 0.1014 94.7)"
+        ]
+      },
+      "primary-hover": {
+        "role": "primary",
+        "displayName": "Jaune de survol",
+        "tonalRamp": [
+          "oklch(15.0% 0.1621 99.4)",
+          "oklch(26.4% 0.1621 99.4)",
+          "oklch(37.9% 0.1621 99.4)",
+          "oklch(49.3% 0.1621 99.4)",
+          "oklch(60.7% 0.1621 99.4)",
+          "oklch(72.1% 0.1621 99.4)",
+          "oklch(83.6% 0.1621 99.4)",
+          "oklch(95.0% 0.1621 99.4)"
+        ]
+      },
+      "field-line": {
+        "role": "neutral",
+        "displayName": "Trait de champ",
+        "tonalRamp": [
+          "oklch(15.0% 0.0190 106.8)",
+          "oklch(26.4% 0.0190 106.8)",
+          "oklch(37.9% 0.0190 106.8)",
+          "oklch(49.3% 0.0190 106.8)",
+          "oklch(60.7% 0.0190 106.8)",
+          "oklch(72.1% 0.0190 106.8)",
+          "oklch(83.6% 0.0190 106.8)",
+          "oklch(95.0% 0.0190 106.8)"
+        ]
+      },
+      "warning-bg": {
+        "role": "semantic",
+        "displayName": "Fond à vérifier",
+        "tonalRamp": [
+          "oklch(15.0% 0.0516 95.3)",
+          "oklch(26.4% 0.0516 95.3)",
+          "oklch(37.9% 0.0516 95.3)",
+          "oklch(49.3% 0.0516 95.3)",
+          "oklch(60.7% 0.0516 95.3)",
+          "oklch(72.1% 0.0516 95.3)",
+          "oklch(83.6% 0.0516 95.3)",
+          "oklch(95.0% 0.0516 95.3)"
+        ]
+      },
+      "warning-text": {
+        "role": "semantic",
+        "displayName": "Texte à vérifier",
+        "tonalRamp": [
+          "oklch(15.0% 0.0975 89.0)",
+          "oklch(26.4% 0.0975 89.0)",
+          "oklch(37.9% 0.0975 89.0)",
+          "oklch(49.3% 0.0975 89.0)",
+          "oklch(60.7% 0.0975 89.0)",
+          "oklch(72.1% 0.0975 89.0)",
+          "oklch(83.6% 0.0975 89.0)",
+          "oklch(95.0% 0.0975 89.0)"
+        ]
+      },
+      "prepared-bg": {
+        "role": "semantic",
+        "displayName": "Fond demande préparée",
+        "tonalRamp": [
+          "oklch(15.0% 0.0159 130.4)",
+          "oklch(26.4% 0.0159 130.4)",
+          "oklch(37.9% 0.0159 130.4)",
+          "oklch(49.3% 0.0159 130.4)",
+          "oklch(60.7% 0.0159 130.4)",
+          "oklch(72.1% 0.0159 130.4)",
+          "oklch(83.6% 0.0159 130.4)",
+          "oklch(95.0% 0.0159 130.4)"
+        ]
+      },
+      "prepared-text": {
+        "role": "semantic",
+        "displayName": "Texte demande préparée",
+        "tonalRamp": [
+          "oklch(15.0% 0.0797 132.9)",
+          "oklch(26.4% 0.0797 132.9)",
+          "oklch(37.9% 0.0797 132.9)",
+          "oklch(49.3% 0.0797 132.9)",
+          "oklch(60.7% 0.0797 132.9)",
+          "oklch(72.1% 0.0797 132.9)",
+          "oklch(83.6% 0.0797 132.9)",
+          "oklch(95.0% 0.0797 132.9)"
+        ]
+      },
+      "completed-bg": {
+        "role": "semantic",
+        "displayName": "Fond fin confirmée",
+        "tonalRamp": [
+          "oklch(15.0% 0.0086 128.6)",
+          "oklch(26.4% 0.0086 128.6)",
+          "oklch(37.9% 0.0086 128.6)",
+          "oklch(49.3% 0.0086 128.6)",
+          "oklch(60.7% 0.0086 128.6)",
+          "oklch(72.1% 0.0086 128.6)",
+          "oklch(83.6% 0.0086 128.6)",
+          "oklch(95.0% 0.0086 128.6)"
+        ]
+      },
+      "completed-text": {
+        "role": "semantic",
+        "displayName": "Texte fin confirmée",
+        "tonalRamp": [
+          "oklch(15.0% 0.0542 134.8)",
+          "oklch(26.4% 0.0542 134.8)",
+          "oklch(37.9% 0.0542 134.8)",
+          "oklch(49.3% 0.0542 134.8)",
+          "oklch(60.7% 0.0542 134.8)",
+          "oklch(72.1% 0.0542 134.8)",
+          "oklch(83.6% 0.0542 134.8)",
+          "oklch(95.0% 0.0542 134.8)"
+        ]
+      },
+      "in-progress-bg": {
+        "role": "semantic",
+        "displayName": "Fond travaux en cours",
+        "tonalRamp": [
+          "oklch(15.0% 0.0121 67.7)",
+          "oklch(26.4% 0.0121 67.7)",
+          "oklch(37.9% 0.0121 67.7)",
+          "oklch(49.3% 0.0121 67.7)",
+          "oklch(60.7% 0.0121 67.7)",
+          "oklch(72.1% 0.0121 67.7)",
+          "oklch(83.6% 0.0121 67.7)",
+          "oklch(95.0% 0.0121 67.7)"
+        ]
+      },
+      "in-progress-text": {
+        "role": "semantic",
+        "displayName": "Texte travaux en cours",
+        "tonalRamp": [
+          "oklch(15.0% 0.0524 65.1)",
+          "oklch(26.4% 0.0524 65.1)",
+          "oklch(37.9% 0.0524 65.1)",
+          "oklch(49.3% 0.0524 65.1)",
+          "oklch(60.7% 0.0524 65.1)",
+          "oklch(72.1% 0.0524 65.1)",
+          "oklch(83.6% 0.0524 65.1)",
+          "oklch(95.0% 0.0524 65.1)"
+        ]
+      },
+      "error-bg": {
+        "role": "semantic",
+        "displayName": "Fond erreur",
+        "tonalRamp": [
+          "oklch(15.0% 0.0165 26.6)",
+          "oklch(26.4% 0.0165 26.6)",
+          "oklch(37.9% 0.0165 26.6)",
+          "oklch(49.3% 0.0165 26.6)",
+          "oklch(60.7% 0.0165 26.6)",
+          "oklch(72.1% 0.0165 26.6)",
+          "oklch(83.6% 0.0165 26.6)",
+          "oklch(95.0% 0.0165 26.6)"
+        ]
+      },
+      "error-text": {
+        "role": "semantic",
+        "displayName": "Texte erreur",
+        "tonalRamp": [
+          "oklch(15.0% 0.1367 29.7)",
+          "oklch(26.4% 0.1367 29.7)",
+          "oklch(37.9% 0.1367 29.7)",
+          "oklch(49.3% 0.1367 29.7)",
+          "oklch(60.7% 0.1367 29.7)",
+          "oklch(72.1% 0.1367 29.7)",
+          "oklch(83.6% 0.1367 29.7)",
+          "oklch(95.0% 0.1367 29.7)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Titre de page",
+        "purpose": "Titres de page et variante compacte de fiche."
+      },
+      "title": {
+        "displayName": "Titre de panneau",
+        "purpose": "Cartes et sections de travail."
+      },
+      "body": {
+        "displayName": "Base du document",
+        "purpose": "Base typographique héritée par le parcours."
+      },
+      "body-operational": {
+        "displayName": "Texte de lecture",
+        "purpose": "Informations extraites, remarques et explications."
+      },
+      "label": {
+        "displayName": "Libellé",
+        "purpose": "Libellés de champs et métadonnées."
+      },
+      "action": {
+        "displayName": "Commande",
+        "purpose": "Actions nommées du parcours connecté."
+      },
+      "metric": {
+        "displayName": "Compteur",
+        "purpose": "Valeurs des métriques avec chiffres tabulaires."
+      }
+    },
+    "shadows": [
+      {
+        "name": "import-dialog",
+        "value": "0 18px 60px rgb(0 0 0 / .18)",
+        "purpose": "Boîte d’import flottante."
+      },
+      {
+        "name": "notification",
+        "value": "0 8px 24px rgba(30,30,28,0.14)",
+        "purpose": "Notifications et couches flottantes historiques."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-transition",
+        "value": ".18s ease",
+        "purpose": "Changements de ton des commandes."
+      },
+      {
+        "name": "import-spinner",
+        "value": ".8s linear infinite",
+        "purpose": "Progression de la lecture PDF pendant l’import."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Annule animations, transitions et défilement fluide."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-table",
+        "value": "1500px"
+      },
+      {
+        "name": "compact-desktop",
+        "value": "1250px"
+      },
+      {
+        "name": "stacked-detail",
+        "value": "1020px"
+      },
+      {
+        "name": "pdf-initial-open",
+        "value": "900px"
+      },
+      {
+        "name": "mobile-navigation",
+        "value": "768px"
+      },
+      {
+        "name": "mobile-cards",
+        "value": "550px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Bouton principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Commande du parcours connecté avec états de survol, focus et indisponibilité.",
+      "html": "<button type=\"button\" class=\"ds-btn-primary\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>Importer un PDF</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:10px 17px;font:600 13px/1.4 Roboto,sans-serif;border-radius:8px;cursor:pointer;transition:background .18s,color .18s,border-color .18s;background:var(--avis-yellow,#FFE861);color:var(--avis-ink,#1E1E1C);border:1px solid transparent;} .ds-btn-primary svg{width:19px;height:19px;flex-shrink:0;} .ds-btn-primary:hover:not(:disabled){background:#F3DA45;border-color:transparent;color:var(--avis-ink,#1E1E1C);transform:none;} .ds-btn-primary:focus-visible{outline:3px solid #746000;outline-offset:3px;} .ds-btn-primary:disabled{opacity:.48;cursor:not-allowed;} @media(prefers-reduced-motion:reduce){.ds-btn-primary{transition:none;}}"
+    },
+    {
+      "name": "Bouton secondaire",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Commande du parcours connecté avec états de survol, focus et indisponibilité.",
+      "html": "<button type=\"button\" class=\"ds-btn-secondary\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg>Vérifier le bon</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:10px 17px;font:600 13px/1.4 Roboto,sans-serif;border-radius:8px;cursor:pointer;transition:background .18s,color .18s,border-color .18s;background:#FFFFFF;color:var(--avis-ink,#1E1E1C);border:1px solid #D6D6CB;} .ds-btn-secondary svg{width:19px;height:19px;flex-shrink:0;} .ds-btn-secondary:hover:not(:disabled){background:#F1F1E9;border-color:#B9B9AA;color:var(--avis-ink,#1E1E1C);transform:none;} .ds-btn-secondary:focus-visible{outline:3px solid #746000;outline-offset:3px;} .ds-btn-secondary:disabled{opacity:.48;cursor:not-allowed;} @media(prefers-reduced-motion:reduce){.ds-btn-secondary{transition:none;}}"
+    },
+    {
+      "name": "Bouton discret",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Commande du parcours connecté avec états de survol, focus et indisponibilité.",
+      "html": "<button type=\"button\" class=\"ds-btn-ghost\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8ZM14 2v6h6M8 13h8M8 17h5\"/></svg>Actualiser</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:10px 17px;font:600 13px/1.4 Roboto,sans-serif;border-radius:8px;cursor:pointer;transition:background .18s,color .18s,border-color .18s;background:transparent;color:var(--avis-ink,#1E1E1C);border:1px solid var(--avis-line,#E7E6DE);} .ds-btn-ghost svg{width:19px;height:19px;flex-shrink:0;} .ds-btn-ghost:hover:not(:disabled){background:#EEEEE6;border-color:var(--yooza-black,#1E1E1C);color:var(--avis-ink,#1E1E1C);transform:none;} .ds-btn-ghost:focus-visible{outline:3px solid #746000;outline-offset:3px;} .ds-btn-ghost:disabled{opacity:.48;cursor:not-allowed;} @media(prefers-reduced-motion:reduce){.ds-btn-ghost{transition:none;}}"
+    },
+    {
+      "name": "Recherche de bons",
+      "kind": "input",
+      "description": "Recherche groupée avec son icône et un focus porté par le conteneur.",
+      "html": "<label class=\"ds-search\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"10.5\" cy=\"10.5\" r=\"7.5\"/><path d=\"m21 21-4.4-4.4\"/></svg><input type=\"search\" aria-label=\"Rechercher dans les bons\" placeholder=\"Rechercher un client, un bon, un travail…\"></label>",
+      "css": ".ds-search{display:flex;align-items:center;gap:10px;padding:0 13px;border:1px solid #D8D8CB;border-radius:8px;background:#FFFFFF;color:var(--avis-ink,#1E1E1C);}.ds-search svg{width:17px;height:17px;flex-shrink:0;color:var(--avis-muted,#63635C);}.ds-search input{border:0;background:transparent;outline:0;font:400 13px/1.6 Roboto,sans-serif;min-height:44px;width:100%;min-width:0;color:var(--avis-ink,#1E1E1C);}.ds-search input::placeholder{color:#6C6C61;opacity:1;}.ds-search:focus-within{outline:2px solid #746000;outline-offset:2px;}"
+    },
+    {
+      "name": "Navigation latérale",
+      "kind": "nav",
+      "description": "Entrée anthracite avec libellé explicite et sélection jaune.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Exemple de navigation\"><button type=\"button\" class=\"ds-nav-item ds-nav-active\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8ZM14 2v6h6M8 13h8M8 17h5\"/></svg><span>Bons et interventions</span></button><button type=\"button\" class=\"ds-nav-item\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg><span>Réglages</span></button></nav>",
+      "css": ".ds-nav{padding:14px;background:#1E1E1C;}.ds-nav-item{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:12px 14px;margin-bottom:6px;border:0;border-radius:8px;background:transparent;color:#C4C4B9;text-align:left;font:500 13px/1.6 Roboto,sans-serif;cursor:pointer;transition:background .18s,color .18s;}.ds-nav-item svg{width:19px;height:19px;flex-shrink:0;}.ds-nav-item:hover{background:#33332D;color:#FFFFFF;}.ds-nav-item.ds-nav-active{background:var(--avis-yellow,#FFE861);color:var(--avis-ink,#1E1E1C);font-weight:700;}.ds-nav-item:focus-visible{outline:3px solid var(--avis-yellow,#FFE861);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-nav-item{transition:none;}}"
+    },
+    {
+      "name": "Badge d’état",
+      "kind": "chip",
+      "refersTo": "badge-warning",
+      "description": "Les quatre états de la fiche, chacun avec couleur et libellé.",
+      "html": "<div class=\"ds-badges\"><span class=\"ds-badge ds-warning\"><span aria-hidden=\"true\"></span>À vérifier</span><span class=\"ds-badge ds-prepared\"><span aria-hidden=\"true\"></span>Demande préparée</span><span class=\"ds-badge ds-completed\"><span aria-hidden=\"true\"></span>Fin confirmée</span><span class=\"ds-badge ds-progress\"><span aria-hidden=\"true\"></span>Travaux en cours</span></div>",
+      "css": ".ds-badges{display:flex;gap:8px;flex-wrap:wrap;}.ds-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;font:600 11px/1.4 Roboto,sans-serif;white-space:nowrap;}.ds-badge>span{width:5px;height:5px;border-radius:50%;background:currentColor;}.ds-warning{background:#FFF5CE;color:#785E0A;}.ds-prepared{background:#EAF0E5;color:#435E2E;}.ds-completed{background:#EEF1EB;color:#4C6041;}.ds-progress{background:#F1EAE3;color:#775C42;}"
+    },
+    {
+      "name": "Filtre avec compteur",
+      "kind": "chip",
+      "description": "Commande de filtre avec compteur tabulaire et état de sélection.",
+      "html": "<div class=\"ds-filters\" role=\"group\" aria-label=\"Filtrer par état\"><button type=\"button\" class=\"ds-filter\" aria-pressed=\"false\">Tous <span>0</span></button><button type=\"button\" class=\"ds-filter ds-filter-active\" aria-pressed=\"true\">À vérifier <span>0</span></button></div>",
+      "css": ".ds-filters{display:flex;gap:7px;flex-wrap:wrap;}.ds-filter{display:inline-flex;align-items:center;gap:9px;min-height:40px;padding:8px 11px;border:1px solid transparent;border-radius:8px;background:transparent;color:#65655B;font:600 12px/1.4 Roboto,sans-serif;cursor:pointer;transition:background .18s;}.ds-filter span{padding:1px 5px;border-radius:5px;background:#EFEFE6;font-size:11px;font-variant-numeric:tabular-nums;}.ds-filter:hover{background:#F5F5EB;}.ds-filter.ds-filter-active{background:#FFEF96;color:#4B420D;}.ds-filter.ds-filter-active span{background:#EAD967;color:#4B420D;}.ds-filter:focus-visible{outline:3px solid #746000;outline-offset:3px;}@media(max-width:550px){.ds-filter{font-size:11px;min-height:42px;padding:7px 8px;}}@media(prefers-reduced-motion:reduce){.ds-filter{transition:none;}}"
+    },
+    {
+      "name": "Panneau de travail",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Surface blanche et plate, bordée, avec titre et information utile.",
+      "html": "<section class=\"ds-card\"><h2>Les travaux relevés</h2><p>Comparer les informations au document original.</p></section>",
+      "css": ".ds-card{padding:24px;border:1px solid var(--avis-line,#E7E6DE);border-radius:var(--avis-radius,14px);background:var(--avis-surface,#FFFFFF);color:var(--avis-ink,#1E1E1C);font-family:Roboto,sans-serif;}.ds-card h2{margin:0 0 18px;font-size:17px;line-height:1.4;letter-spacing:-.01em;}.ds-card p{margin:0;color:var(--avis-muted,#63635C);font-size:13px;line-height:1.75;}@media(max-width:550px){.ds-card{padding:20px 18px;}}"
+    },
+    {
+      "name": "Métrique filtrable",
+      "kind": "custom",
+      "description": "Compteur cliquable qui conduit à une liste filtrée, compact à 90px de hauteur sur téléphone.",
+      "html": "<button type=\"button\" class=\"ds-metric\"><span>Bons conservés</span><strong>0</strong><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8ZM14 2v6h6M8 13h8M8 17h5\"/></svg></button>",
+      "css": ".ds-metric{position:relative;display:block;width:100%;min-height:113px;padding:18px 23px;border:1px solid var(--avis-line,#E7E6DE);border-radius:14px;background:#FFFFFF;color:var(--avis-ink,#1E1E1C);text-align:left;font-family:Roboto,sans-serif;cursor:pointer;transition:background .18s;}.ds-metric>span{display:block;font-size:12px;font-weight:500;color:var(--avis-muted,#63635C);}.ds-metric strong{display:block;margin-top:11px;font-size:30px;line-height:1.2;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}.ds-metric svg{position:absolute;right:22px;bottom:22px;width:19px;height:19px;color:#76776A;}.ds-metric:hover{background:#FAF9ED;}.ds-metric:focus-visible{outline:3px solid #746000;outline-offset:3px;}@media(max-width:550px){.ds-metric{min-height:90px;padding:14px 20px;}.ds-metric strong{margin-top:8px;font-size:26px;}.ds-metric svg{bottom:16px;}}@media(prefers-reduced-motion:reduce){.ds-metric{transition:none;}}"
+    },
+    {
+      "name": "Onglets de vérification",
+      "kind": "nav",
+      "description": "Onglets soulignés au bureau, grille de commandes sur téléphone.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\" aria-label=\"Étapes du bon\"><button type=\"button\" class=\"ds-tab ds-tab-active\" role=\"tab\" aria-selected=\"true\">Vue d’ensemble</button><button type=\"button\" class=\"ds-tab\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Vérification</button><button type=\"button\" class=\"ds-tab\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Demande d’avis</button><button type=\"button\" class=\"ds-tab\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Historique</button></div>",
+      "css": ".ds-tabs{display:flex;gap:2px;border-bottom:1px solid #DCDCCF;}.ds-tab{flex:1;min-height:48px;padding:10px 5px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:#69695D;font:600 11px/1.4 Roboto,sans-serif;cursor:pointer;transition:background .18s,color .18s;}.ds-tab:hover{background:#EFEFE5;}.ds-tab.ds-tab-active{border-bottom-color:#998500;color:var(--avis-ink,#1E1E1C);font-weight:700;}.ds-tab:focus-visible{outline:3px solid #746000;outline-offset:3px;}@media(max-width:550px){.ds-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;border:0;border-radius:9px;background:#EAEAE0;}.ds-tab{min-height:44px;border:0;border-radius:6px;}.ds-tab.ds-tab-active{background:#FFFFFF;}}@media(prefers-reduced-motion:reduce){.ds-tab{transition:none;}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Le carnet d’intervention Yooza",
+    "overview": "Une identité d’entreprise précise, chaleureuse et sobre accompagne un espace de travail dense. Le logo officiel, le jaune Yooza et l’anthracite donnent les repères. Les grandes surfaces crème et blanches laissent les noms, les documents et les états prendre leur place.\n\nLe système emploie une seule famille de caractères, des contours fins, des coins modérément arrondis et des icônes au trait. La marque apparaît dans les actions et la navigation plutôt que dans des effets décoratifs. La hiérarchie doit rester lisible aussi bien au bureau que sur un téléphone Android.",
+    "keyCharacteristics": [
+      "Jaune signature réservé aux actions principales et aux sélections importantes.",
+      "Anthracite pour les repères de marque, crème pour le fond et blanc pour les zones de travail.",
+      "Densité maîtrisée, libellés explicites et informations secondaires plus discrètes.",
+      "Surfaces plates séparées par des contours et des écarts de ton.",
+      "Une même information organisée selon l’espace disponible."
+    ],
+    "rules": [
+      {
+        "name": "The Repère Rule",
+        "body": "Une couleur d’état accompagne toujours un libellé ; le point coloré ne porte jamais seul le sens.",
+        "section": "colors"
+      },
+      {
+        "name": "The Lecture Rule",
+        "body": "Le texte long conserve ses retours à la ligne et peut se couper dans les adresses ou les identifiants ; la troncature à deux lignes ne concerne que les résumés de travaux dans les listes.",
+        "section": "typography"
+      },
+      {
+        "name": "The Surface Rule",
+        "body": "Les zones de travail restent plates ; une ombre signale une couche flottante.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** conserver le logo officiel et les trois couleurs d’identité Yooza, avec leurs rôles opérationnels documentés.",
+      "**Do** employer le jaune pour les actions principales et les sélections importantes, avec un texte sombre.",
+      "**Do** conserver les libellés des états, des actions et des champs en plus des icônes et des couleurs.",
+      "**Do** garder un focus clavier visible et des commandes principales d’au moins 44px de hauteur.",
+      "**Do** adapter l’organisation des données à la largeur disponible tout en préservant leurs repères essentiels.",
+      "**Do** appliquer les styles du parcours connecté après la feuille historique et respecter la réduction des mouvements."
+    ],
+    "donts": [
+      "**Don't** remplacer le logo par un texte ou un symbole dessiné.",
+      "**Don't** réintroduire les ombres jaunes et les ornements des statistiques historiques dans les panneaux connectés.",
+      "**Don't** utiliser le point de statut, la couleur ou une icône sans libellé comme unique information.",
+      "**Don't** tronquer le corps d’un brouillon, les passages sources ou une information nécessaire à la vérification.",
+      "**Don't** donner à une action indisponible le même état visuel qu’à une action disponible.",
+      "**Don't** confondre les classes historiques de la démonstration avec les primitives actives du parcours connecté."
+    ]
+  }
+}
