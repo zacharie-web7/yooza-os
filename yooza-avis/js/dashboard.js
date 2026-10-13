@@ -185,7 +185,7 @@ function quickSend(clientId) {
   const canalLabel = { email: 'Email', sms: 'SMS', whatsapp: 'WhatsApp' }[canal] || canal;
 
   openModal(
-    'Envoyer une demande d\'avis',
+    'Simuler une demande d\'avis',
     `
       <div class="alert alert-info" style="margin-bottom:1rem">
         <span>ℹ️</span>
@@ -203,7 +203,7 @@ function quickSend(clientId) {
     `
       <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
       <button class="btn btn-primary" onclick="confirmSend(${safeClientId(clientId)})">
-        ✓ Confirmer l'envoi
+        ✓ Confirmer la simulation
       </button>
     `
   );
@@ -218,7 +218,7 @@ function confirmSend(clientId) {
   client.dateEnvoi = today;
   saveClients();
   closeModal();
-  showToast(`Demande envoyée à ${client.nom} !`, 'success');
+  showToast(`Simulation effectuée à ${client.nom} !`, 'success');
 
   // Re-rendre le tableau de bord
   const contentEl = document.getElementById('page-content');

@@ -2,7 +2,7 @@
  * Yooza Avis — Service worker PWA
  * Cache les ressources locales nécessaires à l’utilisation hors connexion.
  */
-const CACHE_NAME = 'yooza-avis-v1.2.0';
+const CACHE_NAME = 'yooza-avis-v2.0.0';
 const APP_SHELL = [
   './',
   './index.html',
@@ -10,6 +10,8 @@ const APP_SHELL = [
   './css/style.css',
   './js/data.js',
   './js/app.js',
+  './js/parcours.js',
+  './css/parcours.css',
   './js/dashboard.js',
   './js/clients.js',
   './js/client-detail.js',

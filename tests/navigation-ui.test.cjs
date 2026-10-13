@@ -68,7 +68,7 @@ test('la route d’une fiche client affiche ses données et sa progression', () 
   assert.match(html, /Martin Dupont/);
   assert.match(html, /Boulangerie Dupont/);
   assert.match(html, /Intervention terminée/);
-  assert.match(html, /Envoyer une demande d'avis/);
+  assert.match(html, /Simuler une demande d'avis/);
   assert.ok(app.document.navItems[1].classList.contains('active'));
 });
 

@@ -89,6 +89,12 @@ function getActiveRoute(hash) {
 }
 
 function handleRoute() {
+  if (typeof Avis !== 'undefined' && Avis.mode && Avis.mode !== 'demo') {
+    var h=window.location.hash||'#/dashboard',title=document.getElementById('page-title');
+    if(title)title.textContent=h.startsWith('#/bon/')?'Vérifier le bon':h==='#/settings'?'Réglages':'Yooza Avis';
+    document.querySelectorAll('.nav-item').forEach(function(item){item.classList.toggle('active',item.dataset.route===(h==='#/settings'?'/settings':h==='#/dashboard'?'/dashboard':'/clients'));});
+    void avisRoute();closeSidebar();window.scrollTo(0,0);return;
+  }
   var hash = window.location.hash || '#/dashboard';
   AppState.currentRoute = hash;
 
@@ -252,7 +258,10 @@ function installYoozaApp() {
 // ---------------------------------------------------------------------------
 // Initialisation au chargement
 // ---------------------------------------------------------------------------
-function initApp() {
+async function initApp() {
+  if (typeof initParcoursAvis === 'function' && await initParcoursAvis()) return;
+  var demo=document.getElementById('avis-demo-banner');
+  if(!demo){demo=document.createElement('p');demo.id='avis-demo-banner';demo.className='avis-bandeau';demo.textContent='DÉMONSTRATION : clients fictifs, envois simulés. Aucune connexion métier active.';document.querySelector('main').prepend(demo);}
   initAppState();
   updateTopbarDate();
   initPwa();
