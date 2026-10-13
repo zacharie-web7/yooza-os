@@ -5,6 +5,10 @@ function avisCarte(parent,titre){var e=avisElement('section',undefined,'avis-car
 function avisBouton(parent,texte,fn){var b=avisElement('button',texte,'btn btn-primary');b.type='button';b.addEventListener('click',fn);parent.append(b);return b;}
 var avisAlertes={graphiques_et_signatures_non_authentifies_consulter_original:'Images et signatures à vérifier dans l’original',pages_sans_texte_ocr_non_integre:'Pages sans texte exploitable : lecture visuelle nécessaire',clients_contradictoires:'Plusieurs clients contradictoires',adresses_facturation_contradictoires:'Adresses de facturation contradictoires',dates_entete_contradictoires:'Dates d’en-tête contradictoires',duree_declaree_incoherente:'Durée déclarée différente du créneau horaire',continuation_tableau_sans_entete_a_verifier:'Continuation de tableau à vérifier',page_sans_tableau_structure_texte_integral_disponible:'Page sans tableau reconnu : consulter le texte complet'};
 var avisErreurs={version_obsolete:'La fiche a changé. Recharge-la avant de continuer.',email_invalide:'L’adresse e-mail est invalide.',
+ gmail_a_configurer:'La connexion Gmail doit être configurée sur ce serveur.',collecte_deja_en_cours:'Un import Gmail est déjà en cours. Attends sa fin.',curseur_invalide:'La reprise Gmail a expiré. Relance un nouvel import.',libelle_introuvable:'Le libellé Bons d’intervention n’est pas disponible dans direction@yooza.be.',
+ libelle_gmail_introuvable:'Le libellé Bons d’intervention n’est pas disponible dans direction@yooza.be.',libelle_gmail_ambigu:'Plusieurs libellés Gmail correspondent. Vérifie le libellé Bons d’intervention.',boite_gmail_incompatible:'La lecture des bons doit utiliser direction@yooza.be.',acces_google_indisponible:'L’accès Google est indisponible. Vérifie la connexion de la boîte Yooza.',source_google_indisponible:'Gmail ne répond pas. Réessaie dans un instant.',limite_google:'Google limite temporairement les demandes. Réessaie plus tard.',
+ teamleader_a_configurer:'La connexion Teamleader doit être configurée sur ce serveur.',teamleader_indisponible:'Teamleader ne répond pas. Les corrections manuelles restent disponibles.',recherche_teamleader_invalide:'Saisis au moins deux caractères pour chercher un client.',email_teamleader_absent:'Ce client ne contient pas d’e-mail utilisable dans Teamleader.',email_teamleader_a_choisir:'Choisis l’adresse e-mail de ce client.',email_teamleader_a_verifier:'L’adresse a changé dans Teamleader. Recherche à nouveau ce client.',nom_client_a_verifier:'Le nom de ce client doit être complété dans Teamleader.',
+ envoi_a_configurer:'L’envoi Gmail doit être configuré avant de pouvoir envoyer.',compte_envoi_non_verifie:'L’identité de la boîte d’envoi n’a pas pu être vérifiée.',compte_envoi_incorrect:'La boîte d’envoi doit être direction@yooza.be.',destinataire_pilote_uniquement:'Ce pilote autorise l’envoi uniquement vers une adresse @yooza.be.',apercu_obsolete:'Le message a changé. Recharge l’aperçu et vérifie-le à nouveau.',preparation_requise:'Prépare d’abord la demande pour afficher son aperçu.',confirmation_requise:'Confirme explicitement le message et son destinataire avant l’envoi.',destinataire_a_verifier:'Le destinataire ne correspond plus au contact. Vérifie la fiche.',demande_deja_traitee:'Cette demande a déjà été traitée. Vérifie son état sans relancer l’envoi.',message_a_verifier:'Le message contient des informations à vérifier avant l’envoi.',
  suivi_a_confirmer:'Confirme la résolution des suites à prévoir et indique ce qui a été réalisé.',
  date_fin_invalide:'Indique une date et une heure réelles de fin, antérieures à maintenant.',
  intervention_non_terminee:'L’intervention doit être confirmée terminée pour préparer une demande.',
@@ -15,7 +19,7 @@ var avisErreurs={version_obsolete:'La fiche a changé. Recharge-la avant de cont
  lien_avis_a_configurer:'Renseigne le lien Google dans Réglages avant de préparer la demande.',
  forbidden:'Ce compte n’est pas autorisé.',unauthenticated:'Reconnecte-toi avec Google.',
  champ_requis:'Complète les champs requis.',lien_avis_invalide:'Utilise le lien HTTPS de la fiche Google Yooza.',
- variante_deja_connue:'Ce fichier est une ancienne variante connue. La version courante reste affichée.',service_indisponible:'Le serveur ne répond pas. Réessaie dans un instant.',serveur_indisponible:'La connexion au serveur est interrompue. Réessaie dans un instant.',pdf_indisponible:'Le PDF ne peut pas être ouvert. Recharge la fiche.',pagination_invalide:'La liste n’a pas pu être chargée. Réessaie.',connexion_google_indisponible:'La connexion Google ne répond pas. Réessaie dans un instant.'};
+ variante_deja_connue:'Ce fichier est une ancienne variante connue. La version courante reste affichée.',service_indisponible:'Le serveur ne répond pas. Réessaie dans un instant.',serveur_indisponible:'La connexion au serveur est interrompue. Réessaie dans un instant.',pdf_indisponible:'Le PDF ne peut pas être ouvert. Réessaie son chargement; la fiche et les corrections restent disponibles.',compteurs_indisponibles:'Les compteurs ne sont pas disponibles. Les bons restent consultables; actualise pour réessayer.',derniers_bons_indisponibles:'Les derniers bons ne peuvent pas être affichés. Ouvre la liste des bons ou actualise pour réessayer.',pagination_invalide:'La liste n’a pas pu être chargée. Réessaie.',connexion_google_indisponible:'La connexion Google ne répond pas. Réessaie dans un instant.'};
 function avisErreur(parent,error){parent.append(avisElement('p',avisErreurs[error.message]||'L’action n’a pas abouti. Réessaie; si le problème persiste, contacte l’administrateur.','avis-erreur'));}
 async function avisApi(path,options){
  var o=options||{},headers=Object.assign({'X-Yooza-Import':'manuel'},o.headers||{});
@@ -44,7 +48,7 @@ async function avisConnexion(parent){
 }
 async function avisRoute(){
  var generation=++Avis.routeGeneration,parent=document.getElementById('page-content');parent.replaceChildren();
- if(Avis.original){URL.revokeObjectURL(Avis.original);Avis.original=null;}
+ avisAnnulerPdf();
  parent.append(avisElement('p',Avis.mode==='local'?'Pilote sur ce HP : données conservées dans PostgreSQL local. Aucun envoi automatique.':'Yooza Avis : données du serveur. Aucun envoi automatique.','avis-bandeau'));
  if(Avis.mode==='indisponible'){avisErreur(parent,new Error('serveur_indisponible'));return;}
  if(Avis.mode==='google'&&!Avis.jeton){await avisConnexion(parent);return;}
@@ -81,6 +85,40 @@ function avisChamp(parent,label,value,type){
 function avisCase(parent,label,checked){
  var l=avisElement('label',undefined,'avis-case'),input=avisElement('input');input.type='checkbox';input.checked=Boolean(checked);l.append(input,document.createTextNode(label));parent.append(l);return input;
 }
+function avisAnnulerPdf(){
+ if(Avis.pdfAbort){Avis.pdfAbort.abort();Avis.pdfAbort=null;}
+ if(Avis.original){URL.revokeObjectURL(Avis.original);Avis.original=null;}
+}
+function avisOriginal(parent,bon,id,generation){
+ var original=avisCarte(parent,'PDF original'),frame=avisElement('iframe'),statut=avisElement('p','Chargement du PDF original…','avis-texte'),lien=avisElement('a','Ouvrir le PDF original'),pdfGeneration=0,variantes;
+ frame.title='PDF original';frame.hidden=true;lien.hidden=true;lien.target='_blank';lien.rel='noopener';statut.setAttribute('role','status');statut.setAttribute('aria-live','polite');original.append(statut,frame,lien);
+ var retry=avisBouton(original,'Réessayer le PDF',function(){void charger();});retry.hidden=true;
+ if(bon.fichiers?.length>1){
+  variantes=avisElement('select');variantes.setAttribute('aria-label','Version du PDF original');
+  bon.fichiers.forEach(function(file){var o=avisElement('option',(file.sha256===bon.extraction.sha256?'Version courante':'Ancienne variante')+' · '+new Date(file.createdAt).toLocaleString('fr-BE'));o.value=file.sha256;variantes.append(o);});variantes.value=bon.extraction.sha256;original.append(variantes);
+  variantes.addEventListener('change',function(){void charger();});
+ }
+ async function charger(){
+  if(generation!==Avis.routeGeneration)return;
+  var no=++pdfGeneration;avisAnnulerPdf();var controller=typeof AbortController==='function'?new AbortController():null;if(controller)Avis.pdfAbort=controller;
+  frame.hidden=true;frame.removeAttribute('src');lien.hidden=true;lien.removeAttribute('href');retry.hidden=true;statut.hidden=false;statut.className='avis-texte';statut.textContent='Chargement du PDF original…';original.setAttribute('aria-busy','true');
+  var headers={};if(Avis.jeton)headers.Authorization='Bearer '+Avis.jeton;
+  var sha=variantes?.value,suffix=sha?'?sha='+encodeURIComponent(sha):'';
+  try{
+   var response=await fetch((Avis.config.apiBase||'/api/v1')+'/avis/imports/'+encodeURIComponent(id)+'/pdf'+suffix,{headers:headers,cache:'no-store',signal:controller?.signal});
+   if(!response.ok)throw Error('pdf_indisponible');var blob=await response.blob();
+   if(no!==pdfGeneration||generation!==Avis.routeGeneration||controller?.signal.aborted)return;
+   Avis.original=URL.createObjectURL(new Blob([blob],{type:'application/pdf'}));frame.src=Avis.original;lien.href=Avis.original;frame.hidden=lien.hidden=false;statut.hidden=true;
+  }catch(error){
+   if(no!==pdfGeneration||generation!==Avis.routeGeneration||controller?.signal.aborted)return;
+   statut.textContent=avisErreurs.pdf_indisponible;statut.className='avis-erreur';retry.hidden=false;
+  }finally{
+   if(Avis.pdfAbort===controller)Avis.pdfAbort=null;
+   if(no===pdfGeneration&&generation===Avis.routeGeneration)original.setAttribute('aria-busy','false');
+  }
+ }
+ void charger();return original;
+}
 async function avisFiche(parent,id,generation){
  var bon=await avisApi('/avis/imports/'+encodeURIComponent(id));if(generation!==Avis.routeGeneration)return;
  Avis.ficheCourante=bon;var l=bon.extraction.lecture,d=l.details,v=bon.validation,grid=avisElement('div',undefined,'avis-grille'),left=avisElement('div'),right=avisElement('aside',undefined,'avis-original');grid.append(left,right);parent.append(grid);
@@ -98,19 +136,7 @@ async function avisFiche(parent,id,generation){
  (d.prestations||[]).forEach(function(p){travaux.append(avisElement('p',p.description,'avis-pre'));var q=p.horaire?p.horaire.debut+' à '+p.horaire.fin+' · '+(p.horaire.dureeDeclareeMinutes!==null?p.horaire.dureeDeclareeMinutes+' min déclarées':p.horaire.dureeCalculeeMinutes+' min calculées'):p.quantiteBrute? p.quantiteBrute+' '+(p.unite||''):'';if(q)travaux.append(avisElement('p',q,'avis-texte'));avisSources(travaux,p.sources);});
  if(!d.prestations?.length)travaux.append(avisElement('p','Aucune prestation structurée reconnue. Consulte le PDF et son texte complet.'));
  var suivi=avisCarte(left,'Remarques et suites à prévoir');suivi.append(avisElement('p',d.remarques?.texte||'Aucune remarque relevée','avis-pre'));(d.suivisAPrevoir||[]).forEach(function(s){suivi.append(avisElement('p',s.texte,'avis-pre'));avisSources(suivi,s.sources);});
- var original=avisCarte(right,'PDF original'),frame=avisElement('iframe');frame.title='PDF original';original.append(frame);
- var headers={};if(Avis.jeton)headers.Authorization='Bearer '+Avis.jeton;
- var response=await fetch((Avis.config.apiBase||'/api/v1')+'/avis/imports/'+encodeURIComponent(id)+'/pdf',{headers:headers,cache:'no-store'});
- if(!response.ok)throw new Error('pdf_indisponible');var blob=await response.blob();if(generation!==Avis.routeGeneration)return;Avis.original=URL.createObjectURL(new Blob([blob],{type:'application/pdf'}));frame.src=Avis.original;
- var lien=avisElement('a','Ouvrir le PDF original');lien.href=Avis.original;lien.target='_blank';lien.rel='noopener';original.append(lien);
- if(bon.fichiers?.length>1){
-  var variantes=avisElement('select');variantes.setAttribute('aria-label','Version du PDF original');
-  bon.fichiers.forEach(function(file){var o=avisElement('option',(file.sha256===bon.extraction.sha256?'Version courante':'Ancienne variante')+' · '+new Date(file.createdAt).toLocaleString('fr-BE'));o.value=file.sha256;variantes.append(o);});variantes.value=bon.extraction.sha256;original.append(variantes);
-  var pdfGeneration=0;
-  variantes.addEventListener('change',async function(){
-   var no=++pdfGeneration;try{var r=await fetch((Avis.config.apiBase||'/api/v1')+'/avis/imports/'+encodeURIComponent(id)+'/pdf?sha='+encodeURIComponent(variantes.value),{headers:headers,cache:'no-store'});if(!r.ok)throw Error('pdf_indisponible');var bytes=await r.blob();if(no!==pdfGeneration||generation!==Avis.routeGeneration)return;URL.revokeObjectURL(Avis.original);Avis.original=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));frame.src=Avis.original;lien.href=Avis.original;}catch(e){avisErreur(original,e);}
-  });
- }
+ avisOriginal(right,bon,id,generation);
  var c=avisCarte(left,'Vérification et corrections'),form=avisElement('form',undefined,'avis-form'),champs=avisElement('div',undefined,'avis-champs');form.append(champs);c.append(form);
  var client=avisChamp(champs,'Client',v?.client||d.client?.nom||''),email=avisChamp(champs,'E-mail du destinataire',v?.email||'','email'),adresse=avisChamp(champs,'Adresse de facturation',v?.adresse||d.client?.facturation?.texte||'','textarea'),telephone=avisChamp(champs,'Téléphone',v?.telephone||'');
  client.required=true;client.maxLength=250;email.maxLength=320;adresse.maxLength=1500;telephone.maxLength=50;
@@ -120,15 +146,16 @@ async function avisFiche(parent,id,generation){
  if(v?.contactId){var exist=avisElement('option','Contact déjà rattaché');exist.value=v.contactId;selection.append(exist);selection.value=v.contactId;}
  avisBouton(form,'Chercher le contact',async function(){try{candidates=await avisApi('/avis/contacts?q='+encodeURIComponent(search.value));selection.replaceChildren(manual);candidates.forEach(function(x){var o=avisElement('option',x.name+' · '+(x.email||'sans e-mail')+(x.reviewOptOut?' · opposition aux avis':'')+(!x.active?' · inactif':''));o.value=x.id;selection.append(o);});}catch(e){avisErreur(c,e);}});
  form.append(selection);selection.addEventListener('change',function(){var contact=candidates.find(function(x){return x.id===selection.value;});if(contact){email.value=contact.email||'';telephone.value=contact.phone||'';}});
+ avisRechercheTeamleader(form,bon,generation,function(result){var contact=result.contact;client.value=contact.name||client.value;email.value=contact.email||'';telephone.value=contact.phone||'';var option=avisElement('option','Contact Teamleader rattaché : '+contact.name);option.value=contact.id;selection.replaceChildren(manual,option);selection.value=contact.id;candidates=[contact];});
  var completed=avisCase(form,'Je confirme que l’intervention est terminée.',v?.completed);
  var end=avisChamp(form,'Date et heure réelles de fin',v?.endedAt?new Date(new Date(v.endedAt).getTime()-new Date(v.endedAt).getTimezoneOffset()*60000).toISOString().slice(0,16):'','datetime-local');
  var resolved=avisCase(form,'Les suites à prévoir mentionnées dans ce bon sont résolues.',v?.suiviResolue),notes=avisChamp(form,'Corrections ou confirmation des travaux réalisés',v?.notes||'','textarea');notes.maxLength=4000;
  var save=avisElement('button','Enregistrer la vérification','btn btn-primary');save.type='submit';form.append(save);
  form.addEventListener('submit',async function(e){e.preventDefault();save.disabled=true;try{await avisApi('/avis/imports/'+id+'/validation',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({revision:bon.revision,client:client.value,adresse:adresse.value,email:email.value,telephone:telephone.value,contactId:selection.value||null,completed:completed.checked,endedAt:completed.checked&&end.value?new Date(end.value).toISOString():null,suiviResolue:resolved.checked,notes:notes.value})});showToast('Vérification enregistrée.');handleRoute();}catch(error){avisErreur(c,error);}finally{save.disabled=false;}});
- var prep=avisCarte(left,'Demande d’avis');prep.append(avisElement('p','La préparation crée un aperçu et un brouillon téléchargeable. Aucun message n’est envoyé.','avis-texte'));
+ var prep=avisCarte(left,'Demande d’avis');prep.append(avisElement('p','La préparation conserve un brouillon. L’envoi demande ensuite de vérifier l’aperçu et de confirmer le destinataire.','avis-texte'));
  var btn=avisBouton(prep,'Préparer la demande',async function(){btn.disabled=true;try{await avisApi('/avis/imports/'+id+'/preparation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({revision:bon.revision})});showToast('Demande préparée, aucun envoi effectué.');handleRoute();}catch(e){avisErreur(prep,e);}finally{btn.disabled=false;}});
- btn.disabled=!(v?.completed&&v?.email);
- if(bon.preparation)avisApercu(prep,bon.preparation.message);
+ btn.disabled=!(v?.completed&&v?.email)||Boolean(bon.preparation?.sendAttempt);
+ if(bon.preparation){var saved=avisElement('div');prep.append(saved);avisApercu(saved,bon.preparation.message);avisEnvoi(prep,bon,generation,saved);}
  var details=avisCarte(left,'Sources et historique');avisSources(details,d.sources?.client);
  var text=avisElement('details');text.append(avisElement('summary','Tout le texte du PDF'),avisElement('pre',d.texteIntegral,'avis-pre'));details.append(text);
  var hist=avisElement('details');hist.append(avisElement('summary','Historique des imports et validations'));(bon.historique||[]).forEach(function(h){hist.append(avisElement('p',new Date(h.createdAt).toLocaleString('fr-BE')+' · '+({'avis.import':'PDF importé','avis.variante':'Nouvelle version reçue','avis.validation':'Vérification enregistrée','avis.preparation':'Demande préparée'}[h.eventType]||h.eventType)+' · révision '+(h.metadata.revision||''),'avis-texte'));if(h.metadata.validation){var vv=h.metadata.validation;hist.append(avisElement('p','Par '+vv.acteur+' : '+vv.client+' · '+vv.email+' · '+(vv.completed?'Fin confirmée':'Travaux non terminés'),'avis-texte'),avisElement('p',vv.notes,'avis-pre'));}});details.append(hist);if(bon.historique?.length===100)details.append(avisElement('p','Les 100 derniers événements sont affichés. L’historique complet est conservé dans la base.','avis-texte'));

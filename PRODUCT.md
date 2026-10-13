@@ -12,7 +12,7 @@ Zach et l’équipe Yooza vérifient des bons d’intervention au bureau et sur 
 
 ## Product Purpose
 
-Conserver les PDF des interventions, vérifier leurs données et préparer un brouillon de demande d’avis Google au bon client après confirmation de la fin des travaux.
+Conserver les PDF des interventions, vérifier leurs données et préparer une demande d’avis Google au bon client après confirmation de la fin des travaux. Tout envoi exige un aperçu exact et une confirmation explicite.
 
 ## Operating Context
 
@@ -20,7 +20,7 @@ Pilote local sur le HP, base PostgreSQL et API Yooza OS existantes. Agent 01 est
 
 ## Capabilities and Constraints
 
-Import PDF manuel, données conservées, dédoublonnage et variantes, extraction avec passages sources, corrections, vérification humaine, préparation et téléchargement EML. Lien et QR Google configurables. Aucun envoi depuis l’application actuellement. Gmail et accès distant sont des raccordements futurs. Scans et signatures demandent une lecture visuelle. Ne pas confondre la démonstration publique avec les données du pilote.
+Import PDF manuel et Gmail en lecture seule, données conservées, dédoublonnage et variantes, extraction avec passages sources, corrections et vérification humaine. Recherche Teamleader avec choix explicite du client et de son e-mail. Préparation, téléchargement EML et envoi après aperçu exact et confirmation. Les états d’envoi vérifié ou incertain restent visibles sans répétition automatique. Le pilote autorise seulement les destinataires @yooza.be. Gmail, Teamleader et envoi nécessitent une configuration serveur; ces connexions permanentes sont absentes du HP et leur installation relève du point 4. Lien et QR Google configurables. Scans et signatures demandent une lecture visuelle. Ne pas confondre la démonstration publique avec les données du pilote.
 
 ## Brand Commitments
 
