@@ -1,0 +1,16 @@
+.avis-bandeau{margin:16px 0;padding:16px;border-radius:10px;background:#fff0d0;color:#74521c}
+.avis-carte{background:#fff;border:1px solid #e0e7ed;border-radius:12px;padding:22px;margin-bottom:18px}
+.avis-grille{display:grid;grid-template-columns:1.15fr 1fr;gap:20px;align-items:start}
+.avis-champs{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.avis-form label{display:block;font-weight:600;margin-bottom:7px}
+.avis-form input:not([type=checkbox]),.avis-form textarea,.avis-form select{width:100%;padding:11px;border:1px solid #b6c5cf;border-radius:7px;color:#163548;background:white}
+.avis-form textarea{min-height:80px}.avis-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:16px 0}
+.avis-original{position:sticky;top:20px}.avis-original iframe{width:100%;height:740px;border:1px solid #dce5e9;border-radius:8px}
+.avis-pre{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+.avis-table{width:100%;border-collapse:collapse}.avis-table td,.avis-table th{text-align:left;padding:12px;border-bottom:1px solid #e3ebef}
+.avis-source{font-size:13px;color:#496472}.avis-texte{color:#596f7d;font-size:14px;line-height:1.6}
+.avis-erreur{padding:14px;color:#9f2929;background:#fff0ef;border-radius:8px;margin:14px 0}
+.avis-form .avis-case{display:flex;align-items:start;gap:10px;margin:15px 0;line-height:1.5}
+.avis-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.avis-stats strong{font-size:32px;display:block;color:#146c7c}
+@media(max-width:1000px){.avis-grille{grid-template-columns:1fr}.avis-original{position:static}.avis-stats{grid-template-columns:1fr 1fr}}
+@media(max-width:550px){.avis-champs{grid-template-columns:1fr}.avis-carte{padding:16px}.avis-table th:nth-child(3),.avis-table td:nth-child(3){display:none}}

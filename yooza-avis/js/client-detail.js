@@ -33,7 +33,7 @@ function renderClientDetail(container, clientId) {
   // Étapes de la timeline
   const steps = [
     { label: 'Intervention terminée', key: 'done',     date: client.dateFinIntervention },
-    { label: 'Demande envoyée',       key: 'sent',     date: client.dateEnvoi },
+    { label: 'Simulation effectuée',       key: 'sent',     date: client.dateEnvoi },
     { label: 'Avis reçu',             key: 'received', date: client.dateAvis },
   ];
 
@@ -71,7 +71,7 @@ function renderClientDetail(container, clientId) {
       <div class="client-detail-actions">
         ${client.statut === STATUS.TO_SEND ? `
           <button class="btn btn-primary" onclick="openSendModal(${safeClientId(client.id)})">
-            📤 Envoyer une demande d'avis
+            📤 Simuler une demande d'avis
           </button>
         ` : client.statut === STATUS.SENT ? `
           <button class="btn btn-outline" onclick="markAsReceived(${safeClientId(client.id)})">
@@ -168,7 +168,7 @@ function renderClientDetail(container, clientId) {
             </div>
             ${client.dateEnvoi ? `
               <div class="info-item">
-                <div class="info-item-label">Demande envoyée le</div>
+                <div class="info-item-label">Simulation effectuée le</div>
                 <div class="info-item-value">${escapeHtml(formatDate(client.dateEnvoi))}</div>
               </div>
             ` : ''}
@@ -210,7 +210,7 @@ function renderClientDetail(container, clientId) {
           <div class="message-preview">${escapeHtml(message)}</div>
           ${client.statut === STATUS.TO_SEND ? `
             <button class="btn btn-primary w-full mt-4" onclick="openSendModal(${safeClientId(client.id)})">
-              📤 Envoyer cette demande d'avis
+              📤 Simuler cette demande d'avis
             </button>
           ` : ''}
         </div>
@@ -231,7 +231,7 @@ function openSendModal(clientId) {
   const canalLabel = { email: 'Email', sms: 'SMS', whatsapp: 'WhatsApp' }[canal] || canal;
 
   openModal(
-    'Envoyer une demande d\'avis',
+    'Simuler une demande d\'avis',
     `
       <div class="alert alert-info">
         <span>📋</span>
@@ -252,7 +252,7 @@ function openSendModal(clientId) {
     `
       <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
       <button class="btn btn-primary" onclick="confirmSendFromDetail(${safeClientId(clientId)})">
-        ✓ Confirmer l'envoi
+        ✓ Confirmer la simulation
       </button>
     `
   );
@@ -267,7 +267,7 @@ function confirmSendFromDetail(clientId) {
   client.dateEnvoi = today;
   saveClients();
   closeModal();
-  showToast(`Demande envoyée à ${client.nom} !`, 'success');
+  showToast(`Simulation effectuée à ${client.nom} !`, 'success');
 
   // Re-rendre la fiche
   renderClientDetail(document.getElementById('page-content'), clientId);
