@@ -43,9 +43,10 @@ function context(api, fetch) {
   };
   vm.createContext(box);
   for (const name of ['parcours', 'interface']) vm.runInContext(fs.readFileSync(path.join(__dirname, '../yooza-avis/js/' + name + '.js'), 'utf8'), box);
+  const networkApi = box.avisApi;
   box.Avis.config = { apiBase: '/api/v1' }; box.Avis.mode = 'local'; box.Avis.routeGeneration = 3;
   box.avisApi = api || (async () => fixture('1'));
-  return { box, page, urls };
+  return { box, page, urls, networkApi };
 }
 const turn = () => new Promise(resolve => setImmediate(resolve));
 
@@ -236,4 +237,47 @@ test('un client CRM inactif ne peut pas être rattaché même par un clic progra
   let calls = 0; const { box, page } = context(async () => { calls++; return { candidats: [{ type: 'company', id: 'inactif', name: 'Société fictive inactive', emails: [{ address: 'test@example.test' }], active: false }], pages: {} }; });
   const panel = box.avisRechercheTeamleader(page, fixture('1'), 3, () => { throw Error('ne doit pas être appelé'); }); await panel.querySelector('button').dispatch('click'); await turn();
   panel.querySelector('select').value = '0'; await panel.querySelector('select').dispatch('change'); const use = panel.querySelector('.avis-crm-choice').querySelector('button'); assert.equal(use.disabled, true); await use.dispatch('click'); assert.equal(calls, 1);
+});
+test('le mode privé démarre sans client Google ni jeton et affiche son badge', async () => {
+  const cfg = { mode: 'tailscale', apiBase: '/api/v1', confirmationEnvoiRequise: true, identity: { email: 'test@yooza.be' }, capabilities: { gmail: true, teamleader: true, envoi: false } };
+  const { box } = context(undefined, async () => ({ ok: true, status: 200, json: async () => cfg })), badge = new Element('span'); box.document.body = new Element('body'); box.document.querySelector = selector => selector === '.version-label' ? badge : null; box.Avis.jeton = 'ancien-jeton';
+  assert.equal(await box.initParcoursAvis(), true); assert.equal(box.Avis.mode, 'tailscale'); assert.equal(box.Avis.jeton, null); assert.equal(badge.textContent, 'Accès privé'); assert.equal(box.document.body.classList.contains('avis-connected'), true);
+});
+test('la route privée ouvre les données sans lancer de connexion Google', async () => {
+  const calls = [], { box } = context(async route => { calls.push(route); return { data: [fixture('1')], hasMore: false }; }); box.Avis.mode = 'tailscale'; box.location.hash = '#/clients';
+  box.avisConnexion = () => { throw Error('connexion Google inattendue'); }; let rendered = false; box.avisVueListe = () => { rendered = true; };
+  await box.avisRoute(); assert.equal(rendered, true); assert.deepEqual(calls, ['/avis/imports?limit=50&offset=0']);
+});
+test('les appels privés ne fabriquent aucun en-tête d’identité ni Authorization Google', async () => {
+  let request; const { box, networkApi } = context(undefined, async (url, options) => { request = { url, options }; return { ok: true, json: async () => ({ data: { total: 0 } }) }; }); box.Avis.mode = 'tailscale'; box.Avis.jeton = 'ne-pas-utiliser';
+  await networkApi('/avis/dashboard'); assert.equal(request.url, '/api/v1/avis/dashboard'); assert.equal(request.options.headers.Authorization, undefined); assert.equal(Object.keys(request.options.headers).some(name => /tailscale|identity|user-login/i.test(name)), false);
+});
+test('le lecteur PDF privé utilise la même origine sans fabriquer d’identité', async () => {
+  let request; const { box, page } = context(undefined, async (url, options) => { request = { url, options }; return { ok: true, blob: async () => new Blob(['%PDF-fictif']) }; }); box.Avis.mode = 'tailscale'; box.Avis.jeton = 'ne-pas-utiliser';
+  box.avisOriginal(page, fixture('1'), '1', 3); await turn(); assert.equal(request.options.headers.Authorization, undefined); assert.equal(Object.keys(request.options.headers).some(name => /tailscale/i.test(name)), false); assert.match(request.url, /^\/api\/v1\/avis\/imports/);
+});
+test('un 401 privé annonce la reconnexion sans provoquer de boucle de routes', async () => {
+  const { box, networkApi } = context(undefined, async () => ({ ok: false, status: 401, json: async () => ({ error: { code: 'unauthenticated' } }) })); box.Avis.mode = 'tailscale'; let routes = 0; box.handleRoute = () => routes++;
+  await assert.rejects(networkApi('/avis/dashboard'), { message: 'acces_prive_requis' }); assert.equal(routes, 0);
+});
+test('le mode Google conserve le jeton Authorization et sa reconnexion habituelle', async () => {
+  let request; const { box, networkApi } = context(undefined, async (url, options) => { request = options; return { ok: false, status: 401, json: async () => ({ error: { code: 'unauthenticated' } }) }; }); box.Avis.mode = 'google'; box.Avis.jeton = 'jeton-fictif'; let routes = 0; box.handleRoute = () => routes++;
+  await assert.rejects(networkApi('/avis/dashboard'), { message: 'unauthenticated' }); assert.equal(request.headers.Authorization, 'Bearer jeton-fictif'); assert.equal(box.Avis.jeton, null); assert.equal(routes, 1);
+});
+test('les modes local et démonstration conservent leur initialisation', async () => {
+  const local = context(undefined, async () => ({ ok: true, status: 200, json: async () => ({ mode: 'local' }) })); local.box.document.body = new Element('body'); assert.equal(await local.box.initParcoursAvis(), true); assert.equal(local.box.Avis.mode, 'local');
+  const demo = context(undefined, async () => ({ ok: false, status: 404 })); assert.equal(await demo.box.initParcoursAvis(), false); assert.equal(demo.box.Avis.mode, 'demo');
+});
+test('les capacités désactivées expliquent le manque de connexion et bloquent les actions', async () => {
+  let calls = 0; const { box, page } = context(async () => { calls++; throw Error('appel inattendu'); }); box.Avis.config.capabilities = { gmail: false, teamleader: false, envoi: false };
+  const gmail = box.avisImportGmail(page, 3), crm = box.avisRechercheTeamleader(page, fixture('1'), 3, () => {}), envoi = box.avisEnvoi(page, fixture('1'), 3, new Element('div'));
+  for (const panel of [gmail, crm, envoi]) { const button = panel.querySelector('button'); assert.equal(button.disabled, true); assert.ok(panel.querySelector('.avis-erreur')); await button.dispatch('click'); }
+  assert.equal(calls, 0);
+});
+test('les réglages privés distinguent capacités configurées, absentes et non connues', async () => {
+  const { box, page } = context(async () => ({ reviewUrl: 'https://g.page/r/exemple/review' })); box.Avis.mode = 'tailscale'; box.Avis.config.identity = { email: 'test@yooza.be' }; box.Avis.config.capabilities = { gmail: true, teamleader: false };
+  await box.avisReglages(page, 3); const rows = page.querySelectorAll('.avis-capability'), map = Object.fromEntries(rows.map(row => [row.firstChild.textContent, row.lastChild.textContent]));
+  assert.equal(map['Import Gmail'], 'Sur demande'); assert.equal(map['Contacts Teamleader'], 'À configurer'); assert.equal(map['Envoi confirmé'], 'À vérifier sur le serveur');
+  assert.equal(rows.find(row => row.firstChild.textContent === 'Contacts Teamleader').lastChild.classList.contains('is-available'), false);
+  assert.ok(page.querySelectorAll('p').some(p => p.textContent === 'Compte connecté : test@yooza.be'));
 });

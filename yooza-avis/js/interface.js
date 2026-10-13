@@ -137,6 +137,7 @@ function avisImportGmail(parent,generation){
  var state=Avis.gmailImport,panel=avisPanneau(parent,'Les bons reçus dans Gmail',"direction@yooza.be · 🟢 Bons d'intervention");panel.classList.add('avis-gmail-panel');
  panel.append(avisElement('p','Importez les PDF du libellé sans modifier les messages. Les doublons restent reconnus et les nouveaux bons sont à vérifier.','avis-texte'));
  var bouton=avisAction(panel,state.cursor?'Continuer l’import':'Importer les nouveaux bons',collecter,'mail','btn-secondary');bouton.disabled=state.busy;if(state.busy)bouton.textContent='Import Gmail en cours…';
+ if(avisCapacite('gmail')===false){bouton.disabled=true;avisErreur(panel,new Error('gmail_a_configurer'));}
  if(state.cursor){var recommencer=avisAction(panel,'Recommencer la lecture',function(){if(state.busy)return;state.cursor=null;state.lots=[];state.error=null;handleRoute();},'clock','btn-ghost');recommencer.disabled=state.busy;}
  var bilan=avisElement('div',undefined,'avis-gmail-bilan');bilan.setAttribute('aria-live','polite');panel.append(bilan);
  function afficher(){
@@ -148,7 +149,7 @@ function avisImportGmail(parent,generation){
   if(dernier.importes?.length){var bons=avisElement('details');bons.append(avisElement('summary','Voir les bons de ce lot'));dernier.importes.forEach(function(item){avisLien(bons,item.outcome==='variante_a_verifier'?'Ouvrir la nouvelle version du bon':'Ouvrir le bon conservé','#/bon/'+item.importId,'file');});bilan.append(bons);}
  }
  async function collecter(){
-  if(state.busy)return;state.busy=true;state.error=null;bouton.disabled=true;bouton.textContent='Import Gmail en cours…';panel.querySelectorAll('.avis-erreur').forEach(function(e){e.remove();});
+  if(state.busy||avisCapacite('gmail')===false)return;state.busy=true;state.error=null;bouton.disabled=true;bouton.textContent='Import Gmail en cours…';panel.querySelectorAll('.avis-erreur').forEach(function(e){e.remove();});
   var success=false;try{var cursor=state.cursor,result=await avisApi('/avis/gmail/collecter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cursor?{pageToken:cursor}:{})});success=true;
    if(!cursor)state.lots=[];state.lots.push(result);state.cursor=result.hasMore&&result.nextCursor?result.nextCursor:null;
    if(generation===Avis.routeGeneration)afficher();
@@ -165,9 +166,10 @@ function avisRechercheTeamleader(parent,bon,generation,choisir){
  var zone=avisElement('div',undefined,'avis-crm-picker');parent.append(zone);zone.append(avisElement('h3','Retrouver le client dans Teamleader','avis-form-heading'),avisElement('p','Choisissez la personne ou la société, puis l’adresse e-mail. La sélection ne confirme pas la fin des travaux.','avis-texte'));
  var search=avisChamp(zone,'Nom du client Teamleader',avisNom(bon)),actions=avisElement('div',undefined,'avis-actions');search.maxLength=200;zone.append(actions);
  var bouton=avisAction(actions,'Chercher dans Teamleader',function(){void rechercher(1);},'search','btn-secondary'),retour=avisElement('div');retour.setAttribute('aria-live','polite');zone.append(retour);
+ if(avisCapacite('teamleader')===false){bouton.disabled=true;avisErreur(retour,new Error('teamleader_a_configurer'));}
  var noRecherche=0,busy=false,query='';
  async function rechercher(page){
-  if(busy||generation!==Avis.routeGeneration)return;var q=page===1?search.value.trim():query;if(q.length<2){avisErreur(retour,new Error('recherche_teamleader_invalide'));return;}
+  if(busy||avisCapacite('teamleader')===false||generation!==Avis.routeGeneration)return;var q=page===1?search.value.trim():query;if(q.length<2){avisErreur(retour,new Error('recherche_teamleader_invalide'));return;}
   query=q;busy=true;bouton.disabled=true;retour.replaceChildren(avisElement('p','Recherche dans Teamleader…','avis-texte'));var no=++noRecherche;
   try{var result=await avisApi('/avis/teamleader/contacts?query='+encodeURIComponent(query)+'&page='+page+'&limit=20');if(generation!==Avis.routeGeneration||no!==noRecherche)return;retour.replaceChildren();
    if(!result.candidats?.length)retour.append(avisElement('p','Aucun client dans cette page. Affinez le nom ou consultez la suivante.','avis-texte'));
@@ -189,7 +191,7 @@ function avisRechercheTeamleader(parent,bon,generation,choisir){
  return zone;
 }
 function avisEnvoi(parent,bon,generation,saved){
- var zone=avisElement('div',undefined,'avis-send-panel');parent.append(zone);zone.append(avisElement('h3','Envoyer la demande','avis-form-heading'),avisElement('p','Pilote : envoi depuis direction@yooza.be vers une adresse @yooza.be. Vérifiez le message avant de confirmer.','avis-texte'));
+ var zone=avisElement('div',undefined,'avis-send-panel');parent.append(zone);zone.append(avisElement('h3','Envoyer la demande','avis-form-heading'),avisElement('p','Envoi depuis direction@yooza.be. Les tests d’envoi sont limités aux adresses @yooza.be ; vérifiez le message avant de confirmer.','avis-texte'));
  var bouton=avisAction(zone,'Vérifier l’aperçu avant envoi',function(){void apercu();},'mail','btn-secondary'),resultat=avisElement('div',undefined,'avis-send-result');resultat.setAttribute('aria-live','polite');zone.append(resultat);var busy=false,sendLocked=false;
  function etat(tentative){
   resultat.replaceChildren();var verified=tentative.state==='sent'&&tentative.verification==='verified'&&tentative.envoiEffectue===true;
@@ -199,11 +201,11 @@ function avisEnvoi(parent,bon,generation,saved){
   bouton.hidden=true;sendLocked=true;avisAction(resultat,'Actualiser l’état',function(){void apercu();},'clock','btn-ghost');
  }
  async function apercu(){
-  if(busy||generation!==Avis.routeGeneration)return;busy=true;bouton.disabled=true;resultat.replaceChildren(avisElement('p','Vérification du message enregistré…','avis-texte'));
+  if(busy||generation!==Avis.routeGeneration||avisCapacite('envoi')===false&&!bon.preparation?.sendAttempt)return;busy=true;bouton.disabled=true;resultat.replaceChildren(avisElement('p','Vérification du message enregistré…','avis-texte'));
   try{var preview=await avisApi('/avis/imports/'+encodeURIComponent(bon.id)+'/envoi/apercu');if(generation!==Avis.routeGeneration)return;if(preview.state){etat(preview);return;}
    if(preview.bonId!==bon.id||preview.revision!==bon.revision||!preview.message||!preview.fingerprint||preview.confirmationRequired!==true)throw Error('apercu_obsolete');
    saved.replaceChildren();saved.append(avisElement('p','Expéditeur : '+preview.from,'avis-texte'));avisApercu(saved,preview.message);saved.querySelector('.avis-preview-state').textContent='Aperçu exact, non envoyé';resultat.replaceChildren();
-   var internal=/^[^\s@]+@yooza\.be$/i.test(preview.message.to),configured=preview.configured===true;
+   var internal=/^[^\s@]+@yooza\.be$/i.test(preview.message.to),configured=preview.configured===true&&avisCapacite('envoi')!==false;
    if(!configured)avisErreur(resultat,new Error('envoi_a_configurer'));if(!internal)avisErreur(resultat,new Error('destinataire_pilote_uniquement'));
    var checkbox=avisCase(resultat,'Je confirme l’envoi de ce message à '+preview.message.to+'.',false);checkbox.parentNode.classList.add('avis-send-confirmation');checkbox.disabled=!configured||!internal||sendLocked;
    var envoyer=avisAction(resultat,'Envoyer cet e-mail',async function(){if(busy||sendLocked||!checkbox.checked||!configured||!internal||generation!==Avis.routeGeneration)return;busy=true;sendLocked=true;envoyer.disabled=checkbox.disabled=bouton.disabled=true;envoyer.textContent='Envoi et vérification…';
@@ -216,6 +218,7 @@ function avisEnvoi(parent,bon,generation,saved){
   finally{busy=false;if(generation===Avis.routeGeneration)bouton.disabled=false;}
  }
  var connue=bon.preparation?.sendAttempt;if(connue)etat({state:connue.state,verification:connue.verified===true?'verified':'unverified',envoiEffectue:connue.state==='sent'?true:connue.state==='failed'?false:null});
+ else if(avisCapacite('envoi')===false){bouton.disabled=true;avisErreur(resultat,new Error('envoi_a_configurer'));}
  return zone;
 }
 
@@ -252,5 +255,6 @@ avisReglages=async function(parent,generation){
  var holder=avisElement('div');await avisReglagesInitiaux(holder);if(generation!==Avis.routeGeneration)return;parent.replaceChildren();avisEntete(parent,'VOTRE IDENTITÉ YOOZA','Le retour client, à votre image.','Un lien direct, un QR code et un message clair pour vos clients.');var grid=avisElement('div',undefined,'avis-settings-grid'),main=avisElement('div'),aside=avisElement('aside');grid.append(main,aside);parent.append(grid);var c=holder.firstChild;main.append(c);c.querySelector('h2').textContent='Votre lien d’avis Google';var form=c.querySelector('form'),input=form.querySelector('input');input.placeholder='https://g.page/r/…/review';form.querySelector('button').prepend(avisIcone('check'));
  var zone=form.nextElementSibling;if(zone){var qrCard=avisElement('section',undefined,'avis-brand-qr');var logo=avisElement('img');logo.src='assets/yooza-logo-anthracite.png';logo.alt='Yooza';qrCard.append(logo,avisElement('h3','Votre expérience compte.'),avisElement('p','Partagez votre retour avec Yooza.'));qrCard.append(zone);aside.append(qrCard);}
  var usage=avisPanneau(main,'Un geste simple, après l’intervention');[['file','Sur papier','Téléchargez le QR pour une carte, un bon remis au client ou un support imprimé.'],['mail','Par e-mail','Le lien cliquable reste le plus pratique sur le téléphone du client.'],['check','Au bon moment','Vérifiez la fin des travaux avant de préparer votre demande.']].forEach(function(v){var row=avisElement('div',undefined,'avis-usage');row.append(avisIcone(v[0]));var text=avisElement('div');text.append(avisElement('h4',v[1]),avisElement('p',v[2]));row.append(text);usage.append(row);});
- var capabilities=avisPanneau(main,'Votre espace aujourd’hui');[['Import PDF','Disponible'],['Vérification et brouillons','Disponibles'],['Import Gmail','Sur demande'],['Contacts Teamleader','Recherche et choix'],['Envoi confirmé','Pilote vers @yooza.be']].forEach(function(v){var row=avisElement('div',undefined,'avis-capability');row.append(avisElement('span',v[0]),avisElement('strong',v[1],'is-available'));capabilities.append(row);});
+ var capabilities=avisPanneau(main,'Votre espace aujourd’hui');[['Import PDF','Disponible'],['Vérification et brouillons','Disponibles'],['Import Gmail','Sur demande','gmail'],['Contacts Teamleader','Recherche et choix','teamleader'],['Envoi confirmé','Tests vers @yooza.be','envoi']].forEach(function(v){var flag=v[2]?avisCapacite(v[2]):true,texte=flag===false?'À configurer':flag===null?'À vérifier sur le serveur':v[1],row=avisElement('div',undefined,'avis-capability');row.append(avisElement('span',v[0]),avisElement('strong',texte,flag===true?'is-available':''));capabilities.append(row);});
+ if(Avis.mode==='tailscale'){var access=avisPanneau(main,'Votre accès privé');access.append(avisElement('p','Les bons et les validations sont conservés sur le serveur Yooza. Cet accès reste disponible quand le HP est éteint.','avis-texte'));if(Avis.config.identity?.email)access.append(avisElement('p','Compte connecté : '+Avis.config.identity.email,'avis-texte'));access.append(avisElement('p','Chaque envoi nécessite toujours un aperçu et votre confirmation.','avis-texte'));}
 };
