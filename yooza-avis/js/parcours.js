@@ -17,21 +17,22 @@ var avisErreurs={version_obsolete:'La fiche a changé. Recharge-la avant de cont
  contact_a_verifier:'Les coordonnées du contact ont changé ou ne correspondent pas. Vérifie le contact sélectionné.',
  contact_opted_out:'Ce contact s’oppose aux demandes d’avis.',contact_inactive:'Ce contact est inactif.',
  lien_avis_a_configurer:'Renseigne le lien Google dans Réglages avant de préparer la demande.',
- forbidden:'Ce compte n’est pas autorisé.',unauthenticated:'Reconnecte-toi avec Google.',
+ forbidden:'Ce compte n’est pas autorisé.',unauthenticated:'Reconnecte-toi avec Google.',acces_prive_requis:'Reconnecte l’accès privé Yooza sur cet appareil, puis actualise la page.',
  champ_requis:'Complète les champs requis.',lien_avis_invalide:'Utilise le lien HTTPS de la fiche Google Yooza.',
  variante_deja_connue:'Ce fichier est une ancienne variante connue. La version courante reste affichée.',service_indisponible:'Le serveur ne répond pas. Réessaie dans un instant.',serveur_indisponible:'La connexion au serveur est interrompue. Réessaie dans un instant.',pdf_indisponible:'Le PDF ne peut pas être ouvert. Réessaie son chargement; la fiche et les corrections restent disponibles.',compteurs_indisponibles:'Les compteurs ne sont pas disponibles. Les bons restent consultables; actualise pour réessayer.',derniers_bons_indisponibles:'Les derniers bons ne peuvent pas être affichés. Ouvre la liste des bons ou actualise pour réessayer.',pagination_invalide:'La liste n’a pas pu être chargée. Réessaie.',connexion_google_indisponible:'La connexion Google ne répond pas. Réessaie dans un instant.'};
 function avisErreur(parent,error){parent.append(avisElement('p',avisErreurs[error.message]||'L’action n’a pas abouti. Réessaie; si le problème persiste, contacte l’administrateur.','avis-erreur'));}
 async function avisApi(path,options){
  var o=options||{},headers=Object.assign({'X-Yooza-Import':'manuel'},o.headers||{});
- if(Avis.jeton)headers.Authorization='Bearer '+Avis.jeton;
+ if(Avis.mode==='google'&&Avis.jeton)headers.Authorization='Bearer '+Avis.jeton;
  var r=await fetch((Avis.config.apiBase||'/api/v1')+path,Object.assign({},o,{headers:headers,cache:'no-store'}));
- var d=await r.json();if(!r.ok){if(r.status===401){Avis.jeton=null;handleRoute();}throw new Error(d.error?.code||'service_indisponible');}return d.data;
+ var d=await r.json();if(!r.ok){if(r.status===401){if(Avis.mode==='google'){Avis.jeton=null;handleRoute();}else if(Avis.mode==='tailscale')throw new Error('acces_prive_requis');}throw new Error(d.error?.code||'service_indisponible');}return d.data;
 }
+function avisCapacite(nom){var valeur=Avis.config?.capabilities?.[nom];return typeof valeur==='boolean'?valeur:null;}
 function avisSources(parent,sources){if(!sources?.length)return;var d=avisElement('details');d.append(avisElement('summary','Voir les passages sources'));sources.forEach(function(s){d.append(avisElement('p','Page '+s.page,'avis-source'),avisElement('pre',s.extrait,'avis-pre'));});parent.append(d);}
 async function initParcoursAvis(){
- try{var r=await fetch('/avis-config',{cache:'no-store'});if(r.status===404){Avis.mode='demo';return false;}if(!r.ok)throw new Error('Configuration indisponible');Avis.config=await r.json();Avis.mode=Avis.config.mode;if(!['local','google'].includes(Avis.mode))throw new Error('Mode inconnu');}
+ try{var r=await fetch('/avis-config',{cache:'no-store'});if(r.status===404){Avis.mode='demo';return false;}if(!r.ok)throw new Error('Configuration indisponible');Avis.config=await r.json();Avis.mode=Avis.config.mode;if(!['local','google','tailscale'].includes(Avis.mode))throw new Error('Mode inconnu');if(Avis.mode!=='google')Avis.jeton=null;}
  catch(e){Avis.mode='indisponible';Avis.config={apiBase:'/api/v1'};}
- document.body.classList.add('avis-connected');var badge=document.querySelector('.version-label'),num=document.querySelector('.version');if(badge)badge.textContent=Avis.mode==='local'?'Pilote connecté':'Connexion Google';if(num)num.textContent='Yooza Avis';
+ document.body.classList.add('avis-connected');var badge=document.querySelector('.version-label'),num=document.querySelector('.version');if(badge)badge.textContent=Avis.mode==='tailscale'?'Accès privé':Avis.mode==='local'?'Pilote connecté':Avis.mode==='google'?'Connexion Google':'Serveur indisponible';if(num)num.textContent='Yooza Avis';
  document.querySelectorAll('.nav-item').forEach(function(a){if(a.dataset.route==='/clients'){var label=a.querySelector('.nav-label');if(label)label.textContent='Bons et interventions';}});
  updateTopbarDate();initPwa();handleRoute();return true;
 }
@@ -49,7 +50,7 @@ async function avisConnexion(parent){
 async function avisRoute(){
  var generation=++Avis.routeGeneration,parent=document.getElementById('page-content');parent.replaceChildren();
  avisAnnulerPdf();
- parent.append(avisElement('p',Avis.mode==='local'?'Pilote sur ce HP : données conservées dans PostgreSQL local. Aucun envoi automatique.':'Yooza Avis : données du serveur. Aucun envoi automatique.','avis-bandeau'));
+ parent.append(avisElement('p',Avis.mode==='local'?'Pilote local : données conservées sur cet ordinateur. Aucun envoi automatique.':Avis.mode==='tailscale'?'Accès privé Yooza : données conservées sur le serveur. Chaque envoi demande votre confirmation.':'Yooza Avis : données du serveur. Aucun envoi automatique.','avis-bandeau'));
  if(Avis.mode==='indisponible'){avisErreur(parent,new Error('serveur_indisponible'));return;}
  if(Avis.mode==='google'&&!Avis.jeton){await avisConnexion(parent);return;}
  try{
@@ -102,7 +103,7 @@ function avisOriginal(parent,bon,id,generation){
   if(generation!==Avis.routeGeneration)return;
   var no=++pdfGeneration;avisAnnulerPdf();var controller=typeof AbortController==='function'?new AbortController():null;if(controller)Avis.pdfAbort=controller;
   frame.hidden=true;frame.removeAttribute('src');lien.hidden=true;lien.removeAttribute('href');retry.hidden=true;statut.hidden=false;statut.className='avis-texte';statut.textContent='Chargement du PDF original…';original.setAttribute('aria-busy','true');
-  var headers={};if(Avis.jeton)headers.Authorization='Bearer '+Avis.jeton;
+  var headers={};if(Avis.mode==='google'&&Avis.jeton)headers.Authorization='Bearer '+Avis.jeton;
   var sha=variantes?.value,suffix=sha?'?sha='+encodeURIComponent(sha):'';
   try{
    var response=await fetch((Avis.config.apiBase||'/api/v1')+'/avis/imports/'+encodeURIComponent(id)+'/pdf'+suffix,{headers:headers,cache:'no-store',signal:controller?.signal});

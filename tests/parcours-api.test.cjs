@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const script=fs.readFileSync(path.join(__dirname,'../yooza-avis/js/parcours.js'),'utf8');
-function contexte(fetch){const c={fetch,console,handleRoute:()=>{},window:{},URL,Blob,TextEncoder};vm.createContext(c);vm.runInContext(script,c);c.Avis.config={apiBase:'/api/v1'};return c;}
+function contexte(fetch){const c={fetch,console,handleRoute:()=>{},window:{},URL,Blob,TextEncoder};vm.createContext(c);vm.runInContext(script,c);c.Avis.config={apiBase:'/api/v1'};c.Avis.mode='google';return c;}
 test('le parcours envoie son identité en mémoire et ne transforme pas une erreur en succès',async()=>{
  let requete;const c=contexte(async(u,o)=>{requete={u,o};return {ok:false,status:403,json:async()=>({error:{code:'forbidden'}})};});
  c.Avis.jeton='jeton-fictif';await assert.rejects(c.avisApi('/avis/imports'),/forbidden/);
