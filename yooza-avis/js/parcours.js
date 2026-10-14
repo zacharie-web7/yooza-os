@@ -88,10 +88,86 @@ function avisCase(parent,label,checked){
 }
 function avisAnnulerPdf(){
  if(Avis.pdfAbort){Avis.pdfAbort.abort();Avis.pdfAbort=null;}
+ if(Avis.pdfLecture){Avis.pdfLecture.fermer();Avis.pdfLecture=null;}
  if(Avis.original){URL.revokeObjectURL(Avis.original);Avis.original=null;}
 }
+var avisModulePdf;
+function avisChargerModulePdf(){
+ if(!avisModulePdf)avisModulePdf=import('/assets/avis-pdf/pdf.mjs').then(function(module){module.GlobalWorkerOptions.workerSrc='/assets/avis-pdf/pdf.worker.mjs';return module;}).catch(function(error){avisModulePdf=null;throw error;});
+ return avisModulePdf;
+}
+async function avisApercuPdf(parent,blob,estCourant,signalerErreur){
+ var lecture={fermee:false,task:null,rendu:null,canvas:null,observer:null,timer:null,fermer:function(){
+  this.fermee=true;clearTimeout(this.timer);this.observer?.disconnect();this.rendu?.cancel();
+  if(this.canvas){this.canvas.width=0;this.canvas.height=0;}
+  if(this.task)void this.task.destroy().catch(function(){});
+ }};
+ Avis.pdfLecture=lecture;
+ function actif(){return !lecture.fermee&&Avis.pdfLecture===lecture&&estCourant();}
+ var module=await avisChargerModulePdf();if(!actif())return false;
+ var data=new Uint8Array(await blob.arrayBuffer());if(!actif())return false;
+ lecture.task=module.getDocument({data:data,isEvalSupported:false,useWasm:false,useSystemFonts:true,
+  standardFontDataUrl:'/assets/avis-pdf/standard_fonts/',cMapUrl:'/assets/avis-pdf/cmaps/',cMapPacked:true,
+  maxImageSize:16000000,canvasMaxAreaInBytes:16000000});
+ var pdf=await lecture.task.promise;if(!actif())return false;
+ var barre=avisElement('div',undefined,'avis-pdf-controls'),compteur=avisElement('span',undefined,'avis-pdf-count'),zone=avisElement('div',undefined,'avis-pdf-page'),canvas=avisElement('canvas'),zoom=avisElement('select'),numero=1,occupe=false,redimensionner=false;
+ var precedent=avisBouton(barre,'Précédente',function(){if(!occupe)void afficher(numero-1).catch(signalerErreur);});
+ compteur.setAttribute('role','status');compteur.setAttribute('aria-live','polite');barre.append(compteur);
+ var suivant=avisBouton(barre,'Suivante',function(){if(!occupe)void afficher(numero+1).catch(signalerErreur);});
+ precedent.className=suivant.className='btn btn-secondary';precedent.setAttribute('aria-label','Page précédente');suivant.setAttribute('aria-label','Page suivante');
+ zoom.setAttribute('aria-label','Grossissement du document');[1,1.5,2].forEach(function(value){var option=avisElement('option',value===1?'Ajuster à la largeur':Math.round(value*100)+' %');option.value=String(value);zoom.append(option);});zoom.value='1';barre.append(zoom);
+ lecture.canvas=canvas;canvas.setAttribute('role','img');zone.append(canvas);parent.replaceChildren(barre,zone);parent.hidden=false;
+ function commandes(){precedent.disabled=occupe||numero<=1;suivant.disabled=occupe||numero>=pdf.numPages;zoom.disabled=occupe;}
+ async function afficher(pageNumber){
+  if(!actif()||occupe||pageNumber<1||pageNumber>pdf.numPages)return;
+  occupe=true;commandes();zone.setAttribute('aria-busy','true');
+  try{
+   var page=await pdf.getPage(pageNumber);if(!actif())return;
+   var normal=page.getViewport({scale:1}),largeur=Math.max(180,zone.clientWidth||parent.clientWidth||320)*Number(zoom.value),ratio=Math.min(globalThis.devicePixelRatio||1,2);
+   var scale=Math.min(largeur/normal.width*ratio,Math.sqrt(4000000/(normal.width*normal.height)),4096/normal.width,4096/normal.height),viewport=page.getViewport({scale:scale});
+   canvas.width=Math.floor(viewport.width);canvas.height=Math.floor(viewport.height);canvas.style.width=largeur+'px';canvas.style.height=largeur*normal.height/normal.width+'px';
+   lecture.rendu=page.render({canvasContext:canvas.getContext('2d'),viewport:viewport});await lecture.rendu.promise;lecture.rendu=null;
+   if(!actif())return;numero=pageNumber;compteur.textContent='Page '+numero+' sur '+pdf.numPages;canvas.setAttribute('aria-label','Aperçu du document original, page '+numero+' sur '+pdf.numPages);page.cleanup();
+  }finally{occupe=false;if(actif()){zone.setAttribute('aria-busy','false');commandes();if(redimensionner){clearTimeout(lecture.timer);lecture.timer=setTimeout(reprendreLargeur,150);}}}
+ }
+ function reprendreLargeur(){if(actif()&&!occupe){redimensionner=false;void afficher(numero).catch(signalerErreur);}}
+ zoom.addEventListener('change',function(){void afficher(numero).catch(signalerErreur);});
+ await afficher(1);if(!actif())return false;
+ if(typeof ResizeObserver==='function'){
+  var derniereLargeur=zone.clientWidth;lecture.observer=new ResizeObserver(function(){
+   if(zone.clientWidth===derniereLargeur)return;derniereLargeur=zone.clientWidth;clearTimeout(lecture.timer);
+   redimensionner=true;lecture.timer=setTimeout(reprendreLargeur,150);
+  });lecture.observer.observe(zone);
+ }
+ return true;
+}
+function avisDestinatairesGmail(parent,bon,generation,utiliser){
+ var source=(bon.historique||[]).some(function(event){return event.eventType==='avis.gmail_source'&&event.metadata?.sha256===bon.extraction.sha256;});
+ if(!source)return null;
+ var zone=avisElement('div',undefined,'avis-email-source'),statut=avisElement('p','Lecture du destinataire du mail d’envoi…','avis-texte'),resultats=avisElement('div',undefined,'avis-email-suggestions'),busy=false;
+ zone.append(avisElement('h3','Adresse dans le mail d’envoi','avis-form-heading'),statut,resultats);parent.append(zone);statut.setAttribute('role','status');statut.setAttribute('aria-live','polite');
+ var retry=avisBouton(zone,'Relire le destinataire',function(){void charger();});retry.className='btn btn-secondary';retry.hidden=true;
+ async function charger(){
+  if(busy||generation!==Avis.routeGeneration)return;busy=true;retry.hidden=true;resultats.replaceChildren();statut.textContent='Lecture du destinataire du mail d’envoi…';
+  try{
+   var result=await avisApi('/avis/imports/'+encodeURIComponent(bon.id)+'/destinataires-gmail');if(generation!==Avis.routeGeneration)return;
+   if(result.revision!==bon.revision||result.sha256!==bon.extraction.sha256){statut.textContent='Le bon a changé. Recharge la fiche pour retrouver son destinataire.';return;}
+   var suggestions=result.suggestions||[];
+   statut.textContent=suggestions.length?'Adresses auxquelles le bon courant a été envoyé. Choisis celle du destinataire de la demande.':'Aucune adresse client trouvée dans le mail. Saisis-la ou retrouve le client dans Teamleader.';
+   suggestions.forEach(function(candidate){
+    var ligne=avisElement('div',undefined,'avis-email-suggestion'),texte=avisElement('div');texte.append(avisElement('strong',candidate.email));
+    var date=candidate.dateEnvoi&&new Date(candidate.dateEnvoi);texte.append(avisElement('p','Source : destinataire du mail'+(date&&Number.isFinite(date.getTime())?' du '+date.toLocaleDateString('fr-BE'):''),'avis-texte'));ligne.append(texte);
+    var bouton=avisBouton(ligne,'Utiliser cette adresse',function(){if(generation!==Avis.routeGeneration)return;utiliser(candidate.email);statut.textContent='Adresse choisie. Vérifie les coordonnées puis enregistre la vérification.';});bouton.className='btn btn-secondary';bouton.setAttribute('aria-label','Utiliser '+candidate.email);resultats.append(ligne);
+   });
+   if(result.partial){resultats.append(avisElement('p','Certains mails sources ne sont pas accessibles. Les adresses affichées restent consultables.','avis-texte'));retry.hidden=false;}
+  }catch(error){if(generation===Avis.routeGeneration){statut.textContent='Le mail d’envoi n’est pas accessible. Saisis l’adresse ou retrouve le client dans Teamleader.';retry.hidden=false;}}
+  finally{busy=false;}
+ }
+ void charger();return zone;
+}
 function avisOriginal(parent,bon,id,generation){
- var original=avisCarte(parent,'PDF original'),frame=avisElement('iframe'),statut=avisElement('p','Chargement du PDF original…','avis-texte'),lien=avisElement('a','Ouvrir le PDF original'),pdfGeneration=0,variantes;
+ var portable=Avis.mode==='tailscale',original=avisCarte(parent,'PDF original'),frame=avisElement(portable?'div':'iframe'),statut=avisElement('p','Chargement du PDF original…','avis-texte'),lien=avisElement('a','Ouvrir le PDF original'),pdfGeneration=0,variantes;
+ if(portable)frame.className='avis-pdf-viewer';
  frame.title='PDF original';frame.hidden=true;lien.hidden=true;lien.target='_blank';lien.rel='noopener';statut.setAttribute('role','status');statut.setAttribute('aria-live','polite');original.append(statut,frame,lien);
  var retry=avisBouton(original,'Réessayer le PDF',function(){void charger();});retry.hidden=true;
  if(bon.fichiers?.length>1){
@@ -103,13 +179,19 @@ function avisOriginal(parent,bon,id,generation){
   if(generation!==Avis.routeGeneration)return;
   var no=++pdfGeneration;avisAnnulerPdf();var controller=typeof AbortController==='function'?new AbortController():null;if(controller)Avis.pdfAbort=controller;
   frame.hidden=true;frame.removeAttribute('src');lien.hidden=true;lien.removeAttribute('href');retry.hidden=true;statut.hidden=false;statut.className='avis-texte';statut.textContent='Chargement du PDF original…';original.setAttribute('aria-busy','true');
+  if(portable)frame.replaceChildren();
   var headers={};if(Avis.mode==='google'&&Avis.jeton)headers.Authorization='Bearer '+Avis.jeton;
   var sha=variantes?.value,suffix=sha?'?sha='+encodeURIComponent(sha):'';
   try{
    var response=await fetch((Avis.config.apiBase||'/api/v1')+'/avis/imports/'+encodeURIComponent(id)+'/pdf'+suffix,{headers:headers,cache:'no-store',signal:controller?.signal});
    if(!response.ok)throw Error('pdf_indisponible');var blob=await response.blob();
    if(no!==pdfGeneration||generation!==Avis.routeGeneration||controller?.signal.aborted)return;
-   Avis.original=URL.createObjectURL(new Blob([blob],{type:'application/pdf'}));frame.src=Avis.original;lien.href=Avis.original;frame.hidden=lien.hidden=false;statut.hidden=true;
+   Avis.original=URL.createObjectURL(new Blob([blob],{type:'application/pdf'}));lien.href=Avis.original;lien.hidden=false;
+   if(portable){
+    function actuel(){return no===pdfGeneration&&generation===Avis.routeGeneration&&!controller?.signal.aborted;}
+    function erreurApercu(){if(!actuel())return;if(Avis.pdfLecture){Avis.pdfLecture.fermer();Avis.pdfLecture=null;}frame.hidden=true;frame.replaceChildren();statut.hidden=false;statut.textContent='L’aperçu ne peut pas être affiché. Ouvre le PDF original ou réessaie ; tes corrections sont conservées.';statut.className='avis-erreur';retry.hidden=false;}
+    try{if(await avisApercuPdf(frame,blob,actuel,erreurApercu))statut.hidden=true;}catch(error){erreurApercu();}
+   }else{frame.src=Avis.original;frame.hidden=false;statut.hidden=true;}
   }catch(error){
    if(no!==pdfGeneration||generation!==Avis.routeGeneration||controller?.signal.aborted)return;
    statut.textContent=avisErreurs.pdf_indisponible;statut.className='avis-erreur';retry.hidden=false;
@@ -141,6 +223,7 @@ async function avisFiche(parent,id,generation){
  var c=avisCarte(left,'Vérification et corrections'),form=avisElement('form',undefined,'avis-form'),champs=avisElement('div',undefined,'avis-champs');form.append(champs);c.append(form);
  var client=avisChamp(champs,'Client',v?.client||d.client?.nom||''),email=avisChamp(champs,'E-mail du destinataire',v?.email||'','email'),adresse=avisChamp(champs,'Adresse de facturation',v?.adresse||d.client?.facturation?.texte||'','textarea'),telephone=avisChamp(champs,'Téléphone',v?.telephone||'');
  client.required=true;client.maxLength=250;email.maxLength=320;adresse.maxLength=1500;telephone.maxLength=50;
+ avisDestinatairesGmail(champs,bon,generation,function(address){if(selection.value){var selected=candidates.find(function(contact){return contact.id===selection.value;}),selectedEmail=selected?.email||(v?.contactId===selection.value?v.email:null);if(!selectedEmail||selectedEmail.toLowerCase()!==address.toLowerCase())selection.value='';}email.value=address;email.focus();});
  var search=avisChamp(form,'Chercher un contact enregistré',client.value),selection=avisElement('select');selection.setAttribute('aria-label','Contact à rattacher');
  var manual=avisElement('option','Contact manuel, sans sélection existante');manual.value='';selection.append(manual);
  var candidates=[];
