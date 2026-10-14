@@ -5,7 +5,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 class Element {
-  constructor(tag) { this.tagName = tag; this.children = []; this.attributes = {}; this.dataset = {}; this.listeners = {}; this.className = ''; this.textContent = ''; this.hidden = false; }
+  constructor(tag) { this.tagName = tag; this.children = []; this.attributes = {}; this.dataset = {}; this.listeners = {}; this.style = {}; this.className = ''; this.textContent = ''; this.hidden = false; }
+  getContext() { return {}; }
   get firstChild() { return this.children[0]; }
   get lastChild() { return this.children.at(-1); }
   get nextElementSibling() { return this.parentNode?.children[this.parentNode.children.indexOf(this) + 1]; }
@@ -36,7 +37,7 @@ function context(api, fetch) {
   const page = new Element('main'), urls = { made: [], revoked: [] };
   const box = {
     document: { createElement: tag => new Element(tag), createElementNS: (ns, tag) => new Element(tag), createTextNode: value => Object.assign(new Element('text'), { textContent: value }), getElementById: () => page, querySelector: () => null, querySelectorAll: () => [] },
-    location: { hash: '#/dashboard' }, Blob, AbortController,
+    location: { hash: '#/dashboard' }, Blob, AbortController, clearTimeout, setTimeout,
     URL: { createObjectURL: () => { const url = 'blob:' + (urls.made.length + 1); urls.made.push(url); return url; }, revokeObjectURL: url => urls.revoked.push(url) },
     fetch: fetch || (async () => ({ ok: true, blob: async () => new Blob(['%PDF-test']) })),
     innerWidth: 1200, matchMedia: () => ({ matches: true }), showToast() {}, navigate() {}, handleRoute() {}, avisAfficherQr() {}, avisLienMessageQr() {}, updateTopbarDate() {}, initPwa() {},
@@ -49,6 +50,119 @@ function context(api, fetch) {
   return { box, page, urls, networkApi };
 }
 const turn = () => new Promise(resolve => setImmediate(resolve));
+
+function portablePdf(box, overrides = {}) {
+  const state = { destroyed: 0, cancelled: 0, pages: [] };
+  const document = { numPages: 2, async getPage(number) {
+    state.pages.push(number);
+    if (overrides.pageFailure && number === 2) throw Error('page unavailable');
+    return { getViewport: ({ scale }) => ({ width: 600 * scale, height: 800 * scale }), cleanup() {}, render() {
+      const promise = state.nextRender || Promise.resolve(); state.nextRender = null;
+      return { promise, cancel() { state.cancelled++; } };
+    } };
+  } };
+  box.Avis.mode = 'tailscale';
+  box.avisChargerModulePdf = async () => ({ getDocument(options) {
+    state.options = options;
+    return { promise: overrides.loading || Promise.resolve(document), async destroy() { state.destroyed++; } };
+  } });
+  return state;
+}
+
+test('le mode privé affiche le PDF dans un canvas paginé et conserve l’original', async () => {
+  const { box, page } = context(), state = portablePdf(box);
+  await box.avisFiche(page, '3616', 3); await turn();
+  assert.equal(page.querySelector('iframe'), null);
+  const canvas = page.querySelector('canvas'); assert.ok(canvas); assert.ok(canvas.width * canvas.height <= 4000000);
+  assert.equal(page.querySelector('.avis-pdf-count').textContent, 'Page 1 sur 2');
+  assert.equal(page.querySelector('.avis-pdf').querySelector('a').href, 'blob:1');
+  const next = page.querySelectorAll('button').find(button => button.attributes['aria-label'] === 'Page suivante');
+  await next.dispatch('click'); await turn();
+  assert.equal(page.querySelector('.avis-pdf-count').textContent, 'Page 2 sur 2'); assert.equal(next.disabled, true);
+  const zoom = page.querySelector('.avis-pdf-controls').querySelector('select'); zoom.value = '2'; await zoom.dispatch('change'); await turn();
+  assert.ok(canvas.width * canvas.height <= 4000000); assert.equal(canvas.style.width, '640px');
+  assert.equal(state.options.useWasm, false);
+  box.avisAnnulerPdf(); assert.equal(state.destroyed, 1); assert.equal(canvas.width, 0); assert.equal(canvas.height, 0);
+});
+
+test('un lecteur privé indisponible garde le PDF ouvrable et les corrections saisies', async () => {
+  const { box, page } = context(); box.Avis.mode = 'tailscale'; box.avisChargerModulePdf = async () => { throw Error('worker unavailable'); };
+  await box.avisFiche(page, '3616', 3); await turn();
+  assert.equal(page.querySelector('.avis-pdf').querySelector('a').href, 'blob:1'); assert.equal(page.querySelector('.avis-pdf').querySelector('a').hidden, false);
+  assert.match(page.querySelector('.avis-erreur').textContent, /aperçu/);
+  const input = page.querySelector('form').querySelector('input'); input.value = 'Correction conservée';
+  portablePdf(box);
+  const retry = page.querySelector('.avis-pdf').querySelectorAll('button').find(button => button.textContent === 'Réessayer le PDF');
+  await retry.dispatch('click'); await turn();
+  assert.ok(page.querySelector('canvas')); assert.equal(input.value, 'Correction conservée'); assert.equal(retry.hidden, true);
+});
+
+test('quitter une fiche pendant le chargement du lecteur détruit le travail et ignore sa réponse', async () => {
+  const loading = deferred(), { box, page, urls } = context(), state = portablePdf(box, { loading: loading.promise });
+  await box.avisFiche(page, '3616', 3); await turn();
+  box.Avis.routeGeneration++; box.avisAnnulerPdf(); page.replaceChildren(new Element('article'));
+  loading.resolve({ numPages: 1 }); await turn();
+  assert.equal(state.destroyed, 1); assert.equal(page.querySelector('canvas'), null); assert.equal(page.firstChild.tagName, 'article');
+  assert.deepEqual(urls.revoked, ['blob:1']);
+});
+
+test('une page illisible retire l’aperçu incomplet et libère le lecteur sans perdre l’original', async () => {
+  const { box, page } = context(), state = portablePdf(box, { pageFailure: true });
+  await box.avisFiche(page, '3616', 3); await turn();
+  const next = page.querySelectorAll('button').find(button => button.attributes['aria-label'] === 'Page suivante');
+  await next.dispatch('click'); await turn();
+  assert.equal(page.querySelector('canvas'), null); assert.equal(page.querySelector('.avis-pdf-viewer').hidden, true);
+  assert.equal(state.destroyed, 1); assert.equal(page.querySelector('.avis-pdf').querySelector('a').href, 'blob:1');
+  assert.match(page.querySelector('.avis-erreur').textContent, /aperçu/);
+});
+
+test('un changement de largeur pendant un rendu est repris une fois le rendu terminé', async () => {
+  const { box, page } = context(), state = portablePdf(box); let resize;
+  box.ResizeObserver = class { constructor(callback) { resize = callback; } observe() {} disconnect() {} };
+  await box.avisFiche(page, '3616', 3); await turn();
+  const rendering = deferred(); state.nextRender = rendering.promise;
+  const next = page.querySelectorAll('button').find(button => button.attributes['aria-label'] === 'Page suivante');
+  await next.dispatch('click'); await turn();
+  page.querySelector('.avis-pdf-page').clientWidth = 250; resize();
+  await new Promise(resolve => setTimeout(resolve, 170)); rendering.resolve();
+  await new Promise(resolve => setTimeout(resolve, 170));
+  assert.equal(page.querySelector('canvas').style.width, '250px'); assert.deepEqual(state.pages, [1, 2, 2]);
+});
+
+test('le destinataire du mail est proposé sans sélection automatique ni écriture', async () => {
+  const calls = [], bon = fixture('3616'); bon.historique = [{ eventType: 'avis.gmail_source', metadata: { sha256: 'courant' } }];
+  const { box, page } = context(async path => { calls.push(path); return { revision: 1, sha256: 'courant', suggestions: [{ email: 'client@example.test', source: 'gmail_to', dateEnvoi: '2026-10-08T13:37:00Z' }], partial: false }; });
+  let chosen = null; box.avisDestinatairesGmail(page, bon, 3, email => { chosen = email; }); await turn();
+  assert.equal(chosen, null); assert.deepEqual(calls, ['/avis/imports/3616/destinataires-gmail']);
+  assert.equal(page.querySelector('strong').textContent, 'client@example.test');
+  const use = page.querySelectorAll('button').find(button => button.attributes['aria-label'] === 'Utiliser client@example.test'); await use.dispatch('click');
+  assert.equal(chosen, 'client@example.test'); assert.equal(calls.length, 1);
+});
+
+test('une réponse de destinataires obsolète ne propose aucune adresse et préserve la saisie', async () => {
+  const bon = fixture('3616'); bon.historique = [{ eventType: 'avis.gmail_source', metadata: { sha256: 'courant' } }];
+  const { box, page } = context(async () => ({ revision: 2, sha256: 'nouvelle', suggestions: [{ email: 'autre@example.test' }] }));
+  box.avisDestinatairesGmail(page, bon, 3, () => assert.fail('stale recipient selected')); await turn();
+  assert.equal(page.querySelector('strong'), null); assert.match(page.querySelector('[role=status]')?.textContent || page.querySelector('p').textContent, /bon a changé/);
+});
+
+test('sans mail source pour le SHA courant, la fiche ne lance aucune lecture Gmail', async () => {
+  const { box, page } = context(async () => assert.fail('unexpected Gmail read')), bon = fixture('3616');
+  bon.historique = [{ eventType: 'avis.gmail_source', metadata: { sha256: 'ancienne' } }];
+  assert.equal(box.avisDestinatairesGmail(page, bon, 3, () => {}), null); assert.equal(page.children.length, 0);
+});
+
+for (const same of [false, true]) test('le choix Gmail ' + (same ? 'conserve le contact dont l’adresse correspond' : 'retire le contact précédent même si l’adresse a déjà été saisie'), async () => {
+  const bon = fixture('3616', { client: 'Client fictif', contactId: 'contact-a', email: 'a@example.test' });
+  bon.historique = [{ eventType: 'avis.gmail_source', metadata: { sha256: 'courant' } }];
+  const proposed = same ? 'a@example.test' : 'b@example.test';
+  const { box, page } = context(async path => path.endsWith('/destinataires-gmail') ? { revision: 1, sha256: 'courant', suggestions: [{ email: proposed }], partial: false } : bon);
+  await box.avisFiche(page, '3616', 3); await turn();
+  const email = page.querySelectorAll('input').find(input => input.type === 'email'); email.value = proposed;
+  const select = page.querySelectorAll('select').find(select => select.attributes['aria-label'] === 'Contact à rattacher');
+  await page.querySelectorAll('button').find(button => button.attributes['aria-label'] === 'Utiliser ' + proposed).dispatch('click');
+  assert.equal(email.value, proposed); assert.equal(select.value, same ? 'contact-a' : '');
+});
 
 for (const hash of ['#/clients', '#/demandes']) test(hash + ' reste consultable sans demander les compteurs du tableau de bord', async () => {
   const calls = [], { box, page } = context(async route => { calls.push(route); if (route === '/avis/dashboard') throw Error('compteurs HS'); return { data: [fixture('1')], hasMore: false }; });
