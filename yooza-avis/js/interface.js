@@ -191,7 +191,7 @@ function avisRechercheTeamleader(parent,bon,generation,choisir){
  return zone;
 }
 function avisEnvoi(parent,bon,generation,saved){
- var zone=avisElement('div',undefined,'avis-send-panel');parent.append(zone);zone.append(avisElement('h3','Envoyer la demande','avis-form-heading'),avisElement('p','Envoi depuis direction@yooza.be. Les tests d’envoi sont limités aux adresses @yooza.be ; vérifiez le message avant de confirmer.','avis-texte'));
+ var zone=avisElement('div',undefined,'avis-send-panel');parent.append(zone);zone.append(avisElement('h3','Envoyer la demande','avis-form-heading'),avisElement('p','Envoi depuis direction@yooza.be. Vérifiez le destinataire et le message avant de confirmer.','avis-texte'));
  var bouton=avisAction(zone,'Vérifier l’aperçu avant envoi',function(){void apercu();},'mail','btn-secondary'),resultat=avisElement('div',undefined,'avis-send-result');resultat.setAttribute('aria-live','polite');zone.append(resultat);var busy=false,sendLocked=false;
  function etat(tentative){
   resultat.replaceChildren();var verified=tentative.state==='sent'&&tentative.verification==='verified'&&tentative.envoiEffectue===true;
@@ -205,14 +205,14 @@ function avisEnvoi(parent,bon,generation,saved){
   try{var preview=await avisApi('/avis/imports/'+encodeURIComponent(bon.id)+'/envoi/apercu');if(generation!==Avis.routeGeneration)return;if(preview.state){etat(preview);return;}
    if(preview.bonId!==bon.id||preview.revision!==bon.revision||!preview.message||!preview.fingerprint||preview.confirmationRequired!==true)throw Error('apercu_obsolete');
    saved.replaceChildren();saved.append(avisElement('p','Expéditeur : '+preview.from,'avis-texte'));avisApercu(saved,preview.message);saved.querySelector('.avis-preview-state').textContent='Aperçu exact, non envoyé';resultat.replaceChildren();
-   var internal=/^[^\s@]+@yooza\.be$/i.test(preview.message.to),configured=preview.configured===true&&avisCapacite('envoi')!==false;
-   if(!configured)avisErreur(resultat,new Error('envoi_a_configurer'));if(!internal)avisErreur(resultat,new Error('destinataire_pilote_uniquement'));
-   var checkbox=avisCase(resultat,'Je confirme l’envoi de ce message à '+preview.message.to+'.',false);checkbox.parentNode.classList.add('avis-send-confirmation');checkbox.disabled=!configured||!internal||sendLocked;
-   var envoyer=avisAction(resultat,'Envoyer cet e-mail',async function(){if(busy||sendLocked||!checkbox.checked||!configured||!internal||generation!==Avis.routeGeneration)return;busy=true;sendLocked=true;envoyer.disabled=checkbox.disabled=bouton.disabled=true;envoyer.textContent='Envoi et vérification…';
+   var internal=/^[^\s@]+@yooza\.be$/i.test(preview.message.to),allowed=internal||preview.recipientAllowed===true,configured=preview.configured===true&&avisCapacite('envoi')!==false;
+   if(!configured)avisErreur(resultat,new Error('envoi_a_configurer'));if(!allowed)avisErreur(resultat,new Error('destinataire_pilote_uniquement'));
+   var checkbox=avisCase(resultat,'Je confirme l’envoi de ce message à '+preview.message.to+'.',false);checkbox.parentNode.classList.add('avis-send-confirmation');checkbox.disabled=!configured||!allowed||sendLocked;
+   var envoyer=avisAction(resultat,'Envoyer cet e-mail',async function(){if(busy||sendLocked||!checkbox.checked||!configured||!allowed||generation!==Avis.routeGeneration)return;busy=true;sendLocked=true;envoyer.disabled=checkbox.disabled=bouton.disabled=true;envoyer.textContent='Envoi et vérification…';
     try{var tentative=await avisApi('/avis/imports/'+encodeURIComponent(bon.id)+'/envoi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({revision:preview.revision,fingerprint:preview.fingerprint,confirmSend:true})});if(generation===Avis.routeGeneration)etat(tentative);}
     catch(error){if(generation===Avis.routeGeneration){resultat.replaceChildren();avisErreur(resultat,error);resultat.append(avisElement('p','Le résultat doit être vérifié avant toute reprise. Aucun nouvel envoi automatique.','avis-texte'));bouton.hidden=true;avisAction(resultat,'Vérifier l’état de l’envoi',function(){void apercu();},'clock','btn-ghost');}}
     finally{busy=false;}
-   },'mail');envoyer.disabled=true;checkbox.addEventListener('change',function(){envoyer.disabled=busy||sendLocked||!checkbox.checked||!configured||!internal;});
+   },'mail');envoyer.disabled=true;checkbox.addEventListener('change',function(){envoyer.disabled=busy||sendLocked||!checkbox.checked||!configured||!allowed;});
    if(sendLocked)resultat.append(avisElement('p','Une tentative a déjà été lancée depuis cette fiche. Rechargez le bon pour vérifier la situation.','avis-texte'));
   }catch(error){if(generation===Avis.routeGeneration){resultat.replaceChildren();avisErreur(resultat,error);if(sendLocked)avisAction(resultat,'Actualiser l’état',function(){void apercu();},'clock','btn-ghost');}}
   finally{busy=false;if(generation===Avis.routeGeneration)bouton.disabled=false;}

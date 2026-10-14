@@ -395,3 +395,28 @@ test('les réglages privés distinguent capacités configurées, absentes et non
   assert.equal(rows.find(row => row.firstChild.textContent === 'Contacts Teamleader').lastChild.classList.contains('is-available'), false);
   assert.ok(page.querySelectorAll('p').some(p => p.textContent === 'Compte connecté : test@yooza.be'));
 });
+
+test('les adresses externes restent bloquées sans autorisation serveur booléenne explicite', async () => {
+  for (const permission of [undefined, false, 'true']) {
+    const calls = [], preview = sendPreview(); preview.message.to = 'client@example.test'; preview.recipientAllowed = permission;
+    const { box, page } = context(async (route, options) => { calls.push({ route, options }); return preview; });
+    const panel = box.avisEnvoi(page, fixture('1'), 3, new Element('div'));
+    await panel.querySelector('button').dispatch('click'); await turn();
+    const checkbox = panel.querySelector('input'), send = panel.querySelectorAll('button').find(b => b.textContent === 'Envoyer cet e-mail');
+    assert.equal(checkbox.disabled, true); checkbox.checked = true; await checkbox.dispatch('change'); await send.dispatch('click');
+    assert.equal(send.disabled, true); assert.equal(calls.length, 1);
+  }
+});
+test('l’autorisation serveur externe exige encore un aperçu, une confirmation et un seul envoi', async () => {
+  const preview = sendPreview(); preview.message.to = 'client@example.test'; preview.recipientAllowed = true;
+  const pending = deferred(), calls = [], { box, page } = context(async (route, options) => { calls.push({route,options}); return route.endsWith('/apercu') ? preview : pending.promise; });
+  const panel = box.avisEnvoi(page, fixture('1'), 3, new Element('div')); assert.equal(calls.length, 0);
+  await panel.querySelector('button').dispatch('click'); await turn();
+  const checkbox = panel.querySelector('input'), send = panel.querySelectorAll('button').find(b => b.textContent === 'Envoyer cet e-mail');
+  assert.equal(checkbox.disabled, false); assert.equal(send.disabled, true); await send.dispatch('click'); assert.equal(calls.length, 1);
+  checkbox.checked = true; await checkbox.dispatch('change'); assert.equal(send.disabled, false);
+  const first = send.dispatch('click'), second = send.dispatch('click'); assert.equal(calls.length, 2);
+  assert.deepEqual(JSON.parse(calls[1].options.body), { revision: 1, fingerprint: preview.fingerprint, confirmSend: true });
+  pending.resolve({state:'sent', envoiEffectue:true, verification:'verified'}); await Promise.all([first,second]);
+  assert.equal(panel.querySelector('.avis-send-state').textContent, 'E-mail envoyé et vérifié');
+});
