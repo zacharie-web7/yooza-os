@@ -60,7 +60,7 @@ body{background:var(--avis-paper)}.sidebar{width:236px;background:#1E1E1C}.main-
 .avis-install-help h2{margin:0;font-size:21px;line-height:1.4;letter-spacing:-.02em;scroll-margin-top:90px}
 .avis-install-help-heading .btn{flex-shrink:0;width:44px;height:44px;padding:0}
 .avis-install-help p{margin:0;color:var(--avis-muted)}
-.avis-install-help ol{display:grid;gap:12px;padding-left:24px;margin:20px 0 0}
+.avis-install-help ol{display:grid;gap:12px;list-style:decimal;padding-left:24px;margin:20px 0 0}
 .avis-install-help li{padding-left:5px}
 .avis-install-share-icon{display:inline-block;vertical-align:-4px;margin-inline:2px}
 .avis-install-help .avis-install-private-note{margin-top:20px;padding-top:16px;border-top:1px solid var(--avis-line);font-size:14px}
