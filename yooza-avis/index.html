@@ -125,6 +125,22 @@
       </div>
     </header>
 
+    <section class="avis-install-help" id="install-app-help" hidden aria-labelledby="install-app-help-title">
+      <div class="avis-install-help-heading">
+        <h2 id="install-app-help-title" tabindex="-1">Installer Yooza Avis</h2>
+        <button class="btn btn-ghost" type="button" onclick="closeYoozaInstallHelp()" aria-label="Fermer l’aide d’installation">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+        </button>
+      </div>
+      <p>Sur iPhone ou iPad, l’ajout se termine dans Safari.</p>
+      <ol>
+        <li>Touchez <strong>Partager</strong> <svg class="avis-install-share-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 9H5v12h14V9h-3M12 15V3m-4 4 4-4 4 4"/></svg>. Selon votre version, ouvrez d’abord le menu du navigateur.</li>
+        <li>Choisissez <strong>Sur l’écran d’accueil</strong>, plus bas dans la liste si nécessaire.</li>
+        <li>Activez <strong>Ouvrir comme app web</strong> si proposé, puis touchez <strong>Ajouter</strong>.</li>
+      </ol>
+      <p class="avis-install-private-note" id="install-app-private-note" hidden>Gardez Tailscale connecté pour accéder à Yooza Avis.</p>
+    </section>
+
     <!-- Zone de contenu dynamique -->
     <main class="page-content" id="page-content" role="main">
       <!-- Rendu par le routeur JS -->

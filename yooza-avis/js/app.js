@@ -207,6 +207,18 @@ function updateTopbarDate() {
 // PWA — cache hors connexion et installation
 // ---------------------------------------------------------------------------
 var deferredInstallPrompt = null;
+var yoozaAppInstalled = false;
+
+function isYoozaAppleMobile() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent || '')
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function isYoozaStandalone() {
+  return yoozaAppInstalled || navigator.standalone === true
+    || (typeof window.matchMedia === 'function'
+      && window.matchMedia('(display-mode: standalone)').matches);
+}
 
 function showInstallButton() {
   var button = document.getElementById('install-app-button');
@@ -216,6 +228,50 @@ function showInstallButton() {
 function hideInstallButton() {
   var button = document.getElementById('install-app-button');
   if (button) button.classList.add('is-hidden');
+}
+
+function closeYoozaInstallHelp(restoreFocus) {
+  var help = document.getElementById('install-app-help');
+  var button = document.getElementById('install-app-button');
+  if (!help || help.hidden) return;
+  var focusInside = help.contains(document.activeElement);
+  help.hidden = true;
+  if (button) {
+    button.setAttribute('aria-expanded', 'false');
+    if (restoreFocus !== false && focusInside) button.focus();
+  }
+}
+
+function updateYoozaInstallButton() {
+  var button = document.getElementById('install-app-button');
+  if (!button) return;
+  if (isYoozaAppleMobile()) {
+    button.setAttribute('aria-controls', 'install-app-help');
+    if (!button.hasAttribute('aria-expanded')) button.setAttribute('aria-expanded', 'false');
+  }
+  if (isYoozaStandalone()) {
+    hideInstallButton();
+    closeYoozaInstallHelp(false);
+  } else if (deferredInstallPrompt || isYoozaAppleMobile()) {
+    showInstallButton();
+  } else {
+    hideInstallButton();
+  }
+}
+
+function toggleYoozaInstallHelp() {
+  var help = document.getElementById('install-app-help');
+  var button = document.getElementById('install-app-button');
+  if (!help || !button) return;
+  if (!help.hidden) {
+    closeYoozaInstallHelp();
+    return;
+  }
+  var privateNote = document.getElementById('install-app-private-note');
+  if (privateNote) privateNote.hidden = typeof Avis === 'undefined' || Avis.mode !== 'tailscale';
+  help.hidden = false;
+  button.setAttribute('aria-expanded', 'true');
+  document.getElementById('install-app-help-title').focus();
 }
 
 function initPwa() {
@@ -228,31 +284,55 @@ function initPwa() {
 
   // Chrome, Edge et la plupart des navigateurs Android exposent cet événement.
   window.addEventListener('beforeinstallprompt', function(event) {
+    if (isYoozaStandalone()) return;
     event.preventDefault();
     deferredInstallPrompt = event;
-    showInstallButton();
+    updateYoozaInstallButton();
   });
 
   window.addEventListener('appinstalled', function() {
+    yoozaAppInstalled = true;
     deferredInstallPrompt = null;
-    hideInstallButton();
+    updateYoozaInstallButton();
     showToast('Yooza Avis est installé sur cet appareil.', 'success');
   });
+
+  var displayMode = typeof window.matchMedia === 'function'
+    ? window.matchMedia('(display-mode: standalone)') : null;
+  if (displayMode && typeof displayMode.addEventListener === 'function') {
+    displayMode.addEventListener('change', updateYoozaInstallButton);
+  } else if (displayMode && typeof displayMode.addListener === 'function') {
+    displayMode.addListener(updateYoozaInstallButton);
+  }
+  window.addEventListener('keydown', function(event) {
+    var help = document.getElementById('install-app-help');
+    if (event.key === 'Escape' && help && !help.hidden && help.contains(document.activeElement)) {
+      event.preventDefault();
+      closeYoozaInstallHelp();
+    }
+  });
+  updateYoozaInstallButton();
 }
 
 function installYoozaApp() {
+  if (isYoozaStandalone()) return;
+  if (isYoozaAppleMobile()) {
+    toggleYoozaInstallHelp();
+    return;
+  }
   if (!deferredInstallPrompt) {
-    showToast('Sur iPhone, ouvrez Partager puis « Sur l’écran d’accueil ».', 'default', 5000);
     return;
   }
 
-  deferredInstallPrompt.prompt();
-  deferredInstallPrompt.userChoice.then(function(choice) {
-    if (choice.outcome === 'accepted') {
-      hideInstallButton();
-    }
-    deferredInstallPrompt = null;
-  });
+  var prompt = deferredInstallPrompt;
+  deferredInstallPrompt = null;
+  updateYoozaInstallButton();
+  function failed() {
+    showToast('L’installation n’a pas pu démarrer. Réessayez depuis le menu du navigateur.', 'error', 5000);
+  }
+  try {
+    Promise.resolve(prompt.prompt()).then(function() { return prompt.userChoice; }).catch(failed);
+  } catch (error) { failed(); }
 }
 
 // ---------------------------------------------------------------------------

@@ -53,3 +53,16 @@ body{background:var(--avis-paper)}.sidebar{width:236px;background:#1E1E1C}.main-
 }
 .avis-pdf-viewer{min-width:0;margin-bottom:14px}.avis-pdf-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px}.avis-pdf-controls .btn{min-height:44px;padding:8px 10px;font-size:14px}.avis-pdf-count{font-size:14px;color:var(--avis-muted);font-variant-numeric:tabular-nums}.avis-pdf-controls select{width:100%;min-height:44px;margin:0;font-size:14px}.avis-pdf-page{overflow:auto;max-height:75vh;background:var(--avis-paper);border:1px solid var(--avis-line);border-radius:7px}.avis-pdf-page canvas{display:block;max-width:none;margin-inline:auto}
 .avis-email-source{grid-column:1 / -1;min-width:0;display:grid;gap:8px;margin-block:8px 16px}.avis-email-source .avis-form-heading{margin:0}.avis-email-source>.avis-texte{margin:0}.avis-email-suggestions{display:grid;gap:12px}.avis-email-suggestion{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}.avis-email-suggestion strong{overflow-wrap:anywhere}.avis-email-suggestion .btn{min-height:44px;font-size:14px}.avis-email-suggestion .avis-texte{margin:4px 0 0}.avis-email-source>.btn{justify-self:start;min-height:44px}
+
+/* L’aide Apple reste visible pendant l’ouverture du menu Partager. */
+.avis-install-help{width:calc(100% - 72px);max-width:610px;align-self:flex-start;margin:24px 36px 0;padding:20px 24px 24px;border:1px solid var(--avis-line);border-radius:var(--avis-radius);background:var(--avis-surface);color:var(--avis-ink);font-size:16px;line-height:1.6;overflow-wrap:anywhere}
+.avis-install-help-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.avis-install-help h2{margin:0;font-size:21px;line-height:1.4;letter-spacing:-.02em;scroll-margin-top:90px}
+.avis-install-help-heading .btn{flex-shrink:0;width:44px;height:44px;padding:0}
+.avis-install-help p{margin:0;color:var(--avis-muted)}
+.avis-install-help ol{display:grid;gap:12px;padding-left:24px;margin:20px 0 0}
+.avis-install-help li{padding-left:5px}
+.avis-install-share-icon{display:inline-block;vertical-align:-4px;margin-inline:2px}
+.avis-install-help .avis-install-private-note{margin-top:20px;padding-top:16px;border-top:1px solid var(--avis-line);font-size:14px}
+@media(max-width:768px){.avis-install-help{width:calc(100% - 44px);margin:20px 22px 0;padding:18px 20px 22px}}
+@media(max-width:550px){.avis-install-help{width:calc(100% - 34px);margin:18px 17px 0;padding:16px 18px 20px}.avis-install-help h2{font-size:19px}}
